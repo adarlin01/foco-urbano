@@ -1,0 +1,40 @@
+name: CI - Foco Urbano
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  validar:
+    name: Validar proyecto
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verificar sintaxis de Python
+        run: |
+          python -m compileall -q app.py migrar_passwords.py
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verificar sintaxis de JavaScript
+        run: |
+          node --check app.js
+
+      - name: Confirmar validaciones
+        run: echo "Las verificaciones de Foco Urbano finalizaron correctamente."
