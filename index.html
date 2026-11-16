@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foco Urbano</title>
+  <link 
+  rel="stylesheet" 
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="phone-container">
+
+    <div id="toast-mensaje" class="toast-mensaje"></div>
+
+    <!-- BIENVENIDA -->
+    <section id="scr-bienvenida" class="screen active">
+      <div class="welcome-hero">
+        <img class="logo-pin" src="logo.png" alt="Foco Urbano" />
+        <h1>Foco Urbano</h1>
+        <h2>Tu ciudad, tu voz, tu cambio.</h2>
+        <p>
+          Reporta problemas urbanos de tu comunidad y ayuda a mejorar David.
+        </p>
+      </div>
+
+      <div class="welcome-actions">
+        <button class="btn-primary" onclick="cambiarPantalla('scr-login')">
+          Iniciar sesión
+        </button>
+
+        <button class="btn-secondary" onclick="cambiarPantalla('scr-registro-ciudadano')">
+          Registrarse como ciudadano
+        </button>
+
+        <button class="btn-link" onclick="cambiarPantalla('scr-login-funcionario')">
+          Acceso funcionario municipal
+        </button>
+      </div>
+    </section>
+
+    <!-- REGISTRO CIUDADANO -->
+    <section id="scr-registro-ciudadano" class="screen">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-bienvenida')">←</button>
+        <h3>Crear cuenta</h3>
+      </header>
+
+      <div class="auth-hero"></div>
+
+      <div class="form-container auth-card tone-light">
+        <div class="icon-circle"><img src="registro.png" alt="Registro" /></div>
+        <h2>Registro ciudadano</h2>
+        <p>Completa tus datos para crear tu cuenta.</p>
+
+        <input id="reg-nombre" type="text" placeholder="Nombre completo" />
+        <input id="reg-correo" type="email" placeholder="Correo electrónico" />
+        <input id="reg-pass" type="password" placeholder="Contraseña" />
+
+        <button class="btn-primary" onclick="registrarCiudadano()">
+          Crear cuenta
+        </button>
+
+        <div class="social-divider">
+          <span>Registrarme con</span>
+        </div>
+
+        <div class="social-buttons">
+          <button type="button" class="social-btn" onclick="mostrarProximamente()">
+            <img src="google.png" alt="Google">
+          </button>
+          <button type="button" class="social-btn" onclick="mostrarProximamente()">
+            <img src="apple.png" alt="Apple">
+          </button>
+        </div>
+
+        <p class="small-text">
+          ¿Ya tienes cuenta?
+          <span onclick="cambiarPantalla('scr-login')">Inicia sesión</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- LOGIN CIUDADANO -->
+    <section id="scr-login" class="screen">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-bienvenida')">←</button>
+        <h3>Iniciar sesión</h3>
+      </header>
+
+      <div class="auth-hero"></div>
+
+      <div class="form-container auth-card">
+        <div class="icon-circle"><img src="inicio.png" alt="Iniciar sesión" /></div>
+        <h2>Bienvenido de nuevo</h2>
+        <p>Inicia sesión para continuar.</p>
+
+        <input id="login-correo" type="email" placeholder="Correo electrónico" />
+        <input id="login-pass" type="password" placeholder="Contraseña" />
+
+        <div class="remember-row">
+          <label>
+            <input id="check-recordar" type="checkbox" />
+            Recordar contraseña
+          </label>
+          <span class="link-recuperar" onclick="cambiarPantalla('scr-recuperar-correo')">
+            Recuperar contraseña
+          </span>
+        </div>
+
+        <button class="btn-primary" onclick="loginCiudadano()">
+          Iniciar sesión
+        </button>
+
+        <p class="small-text">
+          ¿No tienes cuenta?
+          <span onclick="cambiarPantalla('scr-registro-ciudadano')">Regístrate</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- LOGIN FUNCIONARIO -->
+    <section id="scr-login-funcionario" class="screen">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-bienvenida')">←</button>
+        <h3>Acceso municipal</h3>
+      </header>
+
+      <div class="auth-hero"></div>
+
+      <div class="form-container auth-card tone-lighter">
+        <div class="icon-circle"><img src="municipio.png" alt="Municipio" /></div>
+        <h2>Funcionario municipal</h2>
+        <p>Acceso exclusivo para personal autorizado.</p>
+
+        <input id="func-correo" type="email" placeholder="Correo institucional" />
+        <input id="func-pass" type="password" placeholder="Contraseña" />
+
+        <button class="btn-primary" onclick="loginFuncionario()">
+          Entrar al panel
+        </button>
+      </div>
+    </section>
+
+    <!-- RECUPERAR CONTRASEÑA: PASO 1 - CORREO -->
+    <section id="scr-recuperar-correo" class="screen">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-login')">←</button>
+        <h3>Recuperar contraseña</h3>
+      </header>
+
+      <div class="auth-hero"></div>
+
+      <div class="form-container auth-card">
+        <div class="icon-circle"><img src="inicio.png" alt="Recuperar contraseña" /></div>
+        <h2>¿Olvidaste tu contraseña?</h2>
+        <p>Ingresa tu correo y te enviaremos un código de verificación.</p>
+
+        <input id="recuperar-correo" type="email" placeholder="Correo electrónico" />
+
+        <button class="btn-primary" onclick="enviarCodigoRecuperacion()">
+          Enviar código
+        </button>
+
+        <p class="small-text">
+          ¿Recordaste tu contraseña?
+          <span onclick="cambiarPantalla('scr-login')">Inicia sesión</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- RECUPERAR CONTRASEÑA: PASO 2 - CÓDIGO -->
+    <section id="scr-recuperar-codigo" class="screen">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-recuperar-correo')">←</button>
+        <h3>Verificar código</h3>
+      </header>
+
+      <div class="auth-hero"></div>
+
+      <div class="form-container auth-card">
+        <div class="icon-circle"><img src="inicio.png" alt="Verificar código" /></div>
+        <h2>Revisa tu correo</h2>
+        <p>Escribe el código de 6 dígitos que enviamos a tu correo.</p>
+
+        <input id="recuperar-codigo" class="codigo-input" type="text" maxlength="6" placeholder="000000" />
+
+        <button class="btn-primary" onclick="verificarCodigoRecuperacion()">
+          Verificar código
+        </button>
+
+        <p class="small-text">
+          ¿No te llegó el código?
+          <span onclick="enviarCodigoRecuperacion()">Reenviar código</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- RECUPERAR CONTRASEÑA: PASO 3 - NUEVA CONTRASEÑA -->
+    <section id="scr-recuperar-nueva" class="screen">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-recuperar-codigo')">←</button>
+        <h3>Nueva contraseña</h3>
+      </header>
+
+      <div class="auth-hero"></div>
+
+      <div class="form-container auth-card">
+        <div class="icon-circle"><img src="inicio.png" alt="Nueva contraseña" /></div>
+        <h2>Crea tu nueva contraseña</h2>
+        <p>Escribe y confirma tu nueva contraseña.</p>
+
+        <input id="recuperar-nueva-pass" type="password" placeholder="Nueva contraseña" />
+        <input id="recuperar-confirmar-pass" type="password" placeholder="Confirmar nueva contraseña" />
+
+        <button class="btn-primary" onclick="guardarNuevaPasswordRecuperacion()">
+          Guardar nueva contraseña
+        </button>
+      </div>
+    </section>
+
+    <!-- HOME CIUDADANO -->
+      <section id="scr-home-ciudadano" class="screen with-nav">
+      <header class="home-header">
+        <button class="menu-btn" onclick="abrirMenuCiudadano()">☰</button>
+        <h3 id="nombre-ciudadano">Hola, ciudadano</h3>
+        <div class="header-spacer"></div>
+      </header>
+
+      <div class="banner">
+        <h2>Reporta problemas y hagamos de David un mejor lugar.</h2>
+      </div>
+
+      <div class="big-action" onclick="cambiarPantalla('scr-crear-reporte')">
+        <div class="plus-circle">+</div>
+        <div>
+          <h3>Crear reporte</h3>
+          <p>Reporta un problema en tu comunidad</p>
+        </div>
+        <span>›</span>
+      </div>
+
+      <div class="guide-card">
+  <h3>¿Cómo usar Foco Urbano?</h3>
+
+  <div class="guide-step">
+    <span>1</span>
+    <p>Presiona <strong>Crear reporte</strong> para informar un problema de tu comunidad.</p>
+  </div>
+
+  <div class="guide-step">
+    <span>2</span>
+    <p>Selecciona la categoría, el corregimiento, escribe un título y describe el problema.</p>
+  </div>
+
+  <div class="guide-step">
+    <span>3</span>
+    <p>Presiona "Usar mi ubicación" para que el mapa marque el punto exacto. La foto es opcional.</p>
+  </div>
+
+</div>
+</section>
+
+    <!-- CREAR REPORTE -->
+    <section id="scr-crear-reporte" class="screen with-nav">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-home-ciudadano')">←</button>
+        <h3>Crear reporte</h3>
+      </header>
+
+      <div class="form-container align-left">
+        <h3>Información del problema</h3>
+
+        <label>Título breve</label>
+        <input id="reporte-titulo" type="text" placeholder="Ejemplo: Bache grande frente a la escuela" />
+
+        <label>Categoría</label>
+        <select id="reporte-categoria">
+          <option value="">Selecciona una categoría</option>
+        </select>
+
+        <label>Corregimiento</label>
+        <select id="reporte-corregimiento">
+          <option value="">Selecciona un corregimiento</option>
+        </select>
+
+        <label>Descripción</label>
+        <textarea id="reporte-descripcion" placeholder="Describe el problema..."></textarea>
+
+        <label>Referencia de ubicación</label>
+        <input id="reporte-ubicacion" type="text" placeholder="Ejemplo: Frente al parque, calle 5" required />
+
+        <button type="button" class="btn-secondary btn-ubicacion" onclick="detectarUbicacionGPS()">
+           Usar mi ubicación
+        </button>
+
+        <p id="estado-ubicacion" class="hint">Ubicación no detectada todavía.</p>
+
+        <label>Evidencia fotográfica (opcional)</label>
+        <input id="reporte-imagen" type="file" accept="image/*" style="display:none;" onchange="actualizarNombreArchivoReporte(this)" />
+        <label for="reporte-imagen" class="file-upload-btn" id="nombre-archivo-reporte">Seleccionar foto</span>
+        </label>
+
+        <button class="btn-primary" onclick="crearReporte()">
+          Enviar reporte
+        </button>
+      </div>
+    </section>
+
+      <!-- MIS REPORTES -->
+    <section id="scr-mis-reportes" class="screen with-nav">
+      <div class="reportes-top-hero">
+      <header class="top-header">
+        <h3>Reportes</h3> 
+      </header>
+      </div>
+
+      <div class="tabs">
+        <button id="tab-todos" class="active-tab" onclick="filtrarReportesCiudadano('todos')">Todos</button>
+        <button id="tab-pendiente" onclick="filtrarReportesCiudadano('pendiente')">Pendientes</button>
+        <button id="tab-en-proceso" onclick="filtrarReportesCiudadano('proceso')">En proceso</button>
+        <button id="tab-resuelto" onclick="filtrarReportesCiudadano('resuelto')">Resueltos</button>
+        <button id="tab-revision" onclick="filtrarReportesCiudadano('revision')">Revisión</button>
+        <button id="tab-rechazado" onclick="filtrarReportesCiudadano('rechazado')">Rechazados</button>
+      </div>
+
+      <div id="lista-reportes-ciudadano" class="report-list"></div>
+    </section>
+
+    <!-- DETALLE REPORTE -->
+    <section id="scr-detalle-reporte" class="screen with-nav">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-mis-reportes')">←</button>
+        <h3>Detalle del reporte</h3>
+      </header>
+
+      <div id="detalle-reporte" class="detail-container"></div>
+    </section>
+
+      <!-- MAPA -->
+    <section id="scr-mapa" class="screen with-nav">
+      <div class="mapa-top-hero">
+      <header class="top-header">
+        <h3>Mapa de reportes</h3>
+      </header>
+      </div>
+
+      <div class="real-map-card">
+      <div id="mapa-david"></div>
+
+      <div class="map-info-card">
+       <strong>Reportes en David</strong>
+       <p>Toca los marcadores para ver el tipo de reporte y su estado.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTIFICACIONES -->
+    <section id="scr-notificaciones" class="screen with-nav">
+      <div class="notif-top-hero">
+      <header class="top-header">
+        <h3>Notificaciones</h3>
+      </header>
+      </div>
+    </section>
+
+
+    <!-- CAMBIAR CONTRASEÑA (CIUDADANO) -->
+  <section id="scr-cambiar-password-ciudadano" class="screen">
+    <header class="top-header">
+      <button onclick="volverDesdeCambiarPassword()">←</button>
+      <h3>Cambiar contraseña</h3>
+    </header>
+
+    <div class="form-container align-left">
+      <label>Contraseña actual</label>
+      <input id="cambiar-pass-actual" type="password" placeholder="Contraseña actual" />
+
+      <label>Nueva contraseña</label>
+      <input id="cambiar-pass-nueva" type="password" placeholder="Nueva contraseña" />
+
+      <label>Confirmar nueva contraseña</label>
+      <input id="cambiar-pass-confirmar" type="password" placeholder="Confirmar nueva contraseña" />
+
+      <button class="btn-primary" onclick="guardarCambioPasswordCiudadano()">
+        Guardar nueva contraseña
+      </button>
+    </div>
+  </section>
+
+    <!-- AYUDA -->
+    <section id="scr-ayuda" class="screen with-nav">
+      <header class="top-header">
+        <button onclick="cambiarPantalla('scr-home-ciudadano')">←</button>
+        <h3>Ayuda</h3>
+      </header>
+
+      <div class="help-container faq-style">
+        <h2 class="faq-title">FOCO URBANO</h2>
+        <p class="faq-subtitle">Todo lo que necesitas saber para usar la app.</p>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            ¿Cómo creo un reporte?
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer"><p>Presiona "Crear reporte" e incluye foto, ubicación y descripción del problema.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            ¿Qué hace el municipio con mi reporte?
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer"><p>El municipio lo recibe y lo clasifica según su categoría.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            ¿Cuáles son los estados de un reporte?
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer"><p>Pendiente → En revisión → En proceso → Resuelto/Rechazado.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            ¿Dónde veo el avance de mis reportes?
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer"><p>Desde "Reportes", o mira los de toda la comunidad en el Mapa.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            ¿Recibiré notificaciones?
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer"><p>Sí, te avisaremos cuando tu reporte cambie de estado o sea atendido.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            ¿A dónde va mi información?
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer"><p>Se envía directamente al sistema municipal para su revisión.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL FUNCIONARIO -->
+    <section id="scr-panel-funcionario" class="screen funcionario-screen">
+  <div class="funcionario-top-hero">
+  <header class="home-header">
+    <div class="header-spacer"></div>
+    <h3>Panel municipal</h3>
+    <button onclick="mostrarMenuOrdenFuncionario()">⋮</button>
+  </header>
+
+  <div class="panel-card">
+    <h2>Reportes recibidos</h2>
+    <p>Gestiona los reportes enviados por los ciudadanos.</p>
+  </div>
+  </div>
+
+  <div id="menu-orden-funcionario" class="menu-orden-funcionario">
+    <div onclick="cambiarOrdenFuncionario('desc')">Más recientes primero</div>
+    <div onclick="cambiarOrdenFuncionario('asc')">Más antiguos primero</div>
+    <div onclick="toggleSubmenuCorregimientos()">Ordenar por corregimiento ›</div>
+  </div>
+
+  <div id="submenu-corregimientos-funcionario" class="menu-orden-funcionario submenu-corregimientos">
+  </div>
+
+  <div class="tabs funcionario-tabs">
+    <button id="func-tab-todos" class="active-tab" onclick="filtrarReportesFuncionario('Todos')">Todos</button>
+    <button id="func-tab-pendiente" onclick="filtrarReportesFuncionario('Pendiente')">Pendientes</button>
+    <button id="func-tab-en-proceso" onclick="filtrarReportesFuncionario('En proceso')">En proceso</button>
+    <button id="func-tab-resuelto" onclick="filtrarReportesFuncionario('Resuelto')">Resueltos</button>
+    <button id="func-tab-rechazado" onclick="filtrarReportesFuncionario('Rechazado')">Rechazados</button>
+  </div>
+
+  <div id="lista-reportes-funcionario" class="report-list"></div>
+</section>
+
+  <section id="scr-mapa-funcionario" class="screen funcionario-screen">
+  <div class="mapa-top-hero">
+  <header class="top-header">
+    <button onclick="cambiarPantalla('scr-panel-funcionario')">←</button>
+    <h3>Mapa municipal</h3>
+  </header>
+  </div>
+
+  <div id="mapa-reportes-funcionario" class="map-placeholder">
+    <span>🗺️</span>
+    <h2>Reportes en David</h2>
+    <p>Cargando mapa...</p>
+  </div>
+</section>
+
+<section id="scr-notificaciones-funcionario" class="screen funcionario-screen">
+  <div class="avisos-top-hero">
+  <header class="top-header">
+    <button onclick="cambiarPantalla('scr-panel-funcionario')">←</button>
+    <h3>Notificaciones</h3>
+  </header>
+  </div>
+</section>
+
+<section id="scr-perfil-funcionario" class="screen funcionario-screen">
+  <header class="top-header">
+    <button onclick="cambiarPantalla('scr-panel-funcionario')">←</button>
+    <h3>Perfil funcionario</h3>
+  </header>
+
+  <div class="funcionario-avatar" onclick="document.getElementById('input-foto-funcionario').click()">
+    <img id="foto-funcionario" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Foto de funcionario">
+    <span>✎</span>
+  </div>
+
+    <input 
+      id="input-foto-funcionario" 
+      type="file" 
+      accept="image/*" 
+      style="display:none;" 
+      onchange="cambiarFotoFuncionario(this)"
+>
+
+    <h2 id="nombre-funcionario">Funcionario Municipal</h2>
+    <p id="correo-funcionario">funcionario@municipio.com</p>
+
+    <div class="detail-box drawer-config">
+
+      <h4 style="color:var(--green); margin-bottom:12px;">Configuración</h4>
+
+      <div class="drawer-row">
+        <span>Modo oscuro</span>
+        <label class="toggle-dark">
+          <input id="check-modo-oscuro-func" type="checkbox" onchange="activarModoOscuroCiudadano(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="drawer-row column">
+        <span>Tamaño de fuente</span>
+        <select id="select-tamano-letra-func" onchange="cambiarTamanoLetraCiudadano(this.value)">
+          <option value="normal">Normal</option>
+          <option value="grande">Grande</option>
+          <option value="pequena">Pequeña</option>
+        </select>
+      </div>
+
+        <div class="drawer-row">
+          <span>Notificaciones</span>
+
+          <span class="check-notif check-notif-fijo">
+            <span>Todos los reportes</span>
+          </span>
+    </div>
+
+    </div>
+
+    <div class="detail-box drawer-config">
+      <h4 style="color:var(--green); margin-bottom:12px;">Soporte</h4>
+
+      <div class="drawer-help" onclick="cambiarPantalla('scr-ayuda-funcionario')">
+        Ayuda y preguntas frecuentes
+      </div>
+
+      <button class="btn-secondary" style="margin-top:10px;" onclick="abrirModalSoporteFuncionario()">
+        Contactar soporte
+      </button>
+    </div>
+
+    <button class="btn-primary" onclick="cerrarSesion()">
+      Cerrar sesión
+    </button>
+</section>
+
+<!-- AYUDA FUNCIONARIO -->
+<section id="scr-ayuda-funcionario" class="screen funcionario-screen">
+  <header class="top-header">
+    <button onclick="cambiarPantalla('scr-perfil-funcionario')">←</button>
+    <h3>Ayuda y preguntas frecuentes</h3>
+  </header>
+
+  <div class="help-container faq-style">
+    <h2 class="faq-title">PANEL MUNICIPAL</h2>
+    <p class="faq-subtitle">Guía rápida para gestionar los reportes ciudadanos.</p>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        ¿Cómo reviso un reporte?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer"><p>Entra a "Home" y toca cualquier reporte de la lista para ver toda su información y ubicación.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        ¿Cómo cambio el estado de un reporte?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer"><p>Dentro del detalle, selecciona el nuevo estado, agrega un comentario si lo deseas y presiona "Guardar cambios".</p></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        ¿Cómo filtro los reportes?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer"><p>Usa las pestañas superiores: Todos, Pendientes, En proceso, Resueltos o Rechazados.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        ¿Dónde veo los reportes en el mapa?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer"><p>En "Mapa" puedes ver todos los reportes ubicados geográficamente y tocar cada marcador.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        ¿Cómo recibo avisos de reportes nuevos?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer"><p>Cada vez que un ciudadano crea un reporte, verás un aviso en la sección "Avisos".</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL SOPORTE FUNCIONARIO -->
+<div id="modal-soporte-funcionario" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="cerrarModalSoporteFuncionario()">×</button>
+    <h3>Soporte</h3>
+    <textarea id="mensaje-soporte-funcionario" placeholder="Escribe tu mensaje..."></textarea>
+    <button class="btn-primary" onclick="enviarSoporteFuncionario()">Enviar</button>
+  </div>
+</div>
+
+
+
+<aside id="menu-ciudadano" class="drawer-menu">
+
+  <button class="drawer-close" onclick="cerrarMenuCiudadano()">×</button>
+
+  <div class="drawer-profile">
+    <div class="drawer-avatar" onclick="document.getElementById('input-foto-ciudadano').click()">
+      <img id="foto-ciudadano" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Foto de perfil">
+      <span>✎</span>
+    </div>
+
+    <input id="input-foto-ciudadano" type="file" accept="image/*" style="display:none;" onchange="cambiarFotoCiudadano(this)">
+
+    <h3 id="drawer-nombre-ciudadano">Usuario</h3>
+    <p id="drawer-correo-ciudadano">correo@ejemplo.com</p>
+  </div>
+
+  <div class="drawer-options">
+
+    <!-- MODO OSCURO -->
+    <div class="drawer-row">
+      <span>Modo oscuro</span>
+      <label class="toggle-dark">
+        <input id="check-modo-oscuro" type="checkbox" onchange="activarModoOscuroCiudadano(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- TAMAÑO LETRA -->
+    <div class="drawer-row column">
+      <span>Tamaño de letra</span>
+      <select id="select-tamano-letra" onchange="cambiarTamanoLetraCiudadano(this.value)">
+        <option value="normal">Normal</option>
+        <option value="grande">Grande</option>
+        <option value="pequena">Pequeña</option>
+      </select>
+    </div>
+
+    <!-- CAMBIAR CONTRASEÑA -->
+    <div class="drawer-help drawer-help-small" onclick="abrirCambiarPasswordCiudadano()">
+      Cambiar contraseña
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="drawer-history">
+      <h4>Historial</h4>
+      <p id="contador-reportes-menu">Reportes realizados: 0</p>
+      <div id="lista-reportes-menu"></div>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div class="drawer-config">
+
+      <h4>Configuración</h4>
+
+      <div class="drawer-help" onclick="abrirAyudaApp()">
+        Ayuda de la aplicación
+      </div>
+
+      <div class="drawer-feedback">
+        <h4>Ayúdanos a mejorar</h4>
+        <textarea placeholder="Cuéntanos si tuviste algún problema o qué mejorarías..."></textarea>
+        <button onclick="enviarFeedback()">Enviar</button>
+      </div>
+
+      <button class="btn-secondary" style="margin-top:12px;" onclick="cerrarSesion()">
+        Cerrar sesión
+      </button>
+
+    </div>
+
+  </div>
+
+</aside>
+
+    <!-- NAV CIUDADANO -->
+    <nav id="bottom-nav" class="bottom-nav">
+  <button id="nav-inicio" onclick="cambiarPantalla('scr-home-ciudadano')">
+    <img src="home.png" alt="Inicio" />
+    <span>Inicio</span>
+  </button>
+
+  <button id="nav-reportes" onclick="cambiarPantalla('scr-mis-reportes')">
+    <img src="reporte.png" alt="Reportes" />
+    <span>Reportes</span>
+  </button>
+
+  <button id="nav-mapa" onclick="cambiarPantalla('scr-mapa')">
+    <img src="mapa.png" alt="Mapa" />
+    <span>Mapa</span>
+  </button>
+
+  <button id="nav-avisos" onclick="cambiarPantalla('scr-notificaciones')">
+    <img src="notificaciones.png" alt="Avisos" />
+    <span>Avisos</span>
+  </button>
+</nav>
+
+    <nav id="bottom-nav-funcionario" class="bottom-nav">
+  <button id="nav-func-inicio" onclick="cambiarPantalla('scr-panel-funcionario')"><img src="home.png" alt="Home"><span>Home</span></button>
+  <button id="nav-func-mapa" onclick="cambiarPantalla('scr-mapa-funcionario')"><img src="mapa.png" alt="Mapa"><span>Mapa</span></button>
+  <button id="nav-func-avisos" onclick="cambiarPantalla('scr-notificaciones-funcionario')"><img src="notificaciones.png" alt="Avisos"><span>Avisos</span></button>
+  <button id="nav-func-perfil" onclick="cambiarPantalla('scr-perfil-funcionario')"><img src="perfil.png" alt="Perfil"><span>Perfil</span></button>
+  </nav>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
