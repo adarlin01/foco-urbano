@@ -15,6 +15,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "evidencias")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+@app.route("/")
+def inicio():
+    return send_from_directory(BASE_DIR, "index.html")
+
 
 # =========================
 # CONFIGURACIÓN DE CORREO (RECUPERAR CONTRASEÑA)
@@ -597,6 +601,19 @@ def marcar_notificacion_leida(id_notificacion):
 def servir_evidencia(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
+
+# =========================
+# ARCHIVOS DEL FRONTEND
+# =========================
+
+@app.route("/<path:filename>")
+def archivos_frontend(filename):
+    extensiones = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp")
+
+    if not filename.lower().endswith(extensiones):
+        return "Archivo no encontrado", 404
+
+    return send_from_directory(BASE_DIR, filename)
 
 # =========================
 # INICIAR SERVIDOR

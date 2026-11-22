@@ -4,7 +4,7 @@
 
 // ⚠️ CAMBIA ESTO por la IP local de la computadora donde corre app.py
 
-const API_URL = "http://172.19.172.106:5000"; 
+const API_URL = window.location.origin;
 
 // Coordenadas por defecto (centro de David, Chiriquí) si el GPS falla o se niega
 const COORD_DAVID_DEFAULT = { lat: 8.4273, lng: -82.4308 };
