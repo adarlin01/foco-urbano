@@ -488,14 +488,16 @@ function aplicarFiltroReportes() {
   const contenedor = document.getElementById("lista-reportes-ciudadano");
   if (!contenedor) return;
 
-  let filtrados = todosLosReportes;
+  // Mostrar los reportes de todos los ciudadanos
+let filtrados = todosLosReportes;
 
-  if (filtroReporteActual !== "todos") {
-    filtrados = todosLosReportes.filter((r) =>
-      claseEstado(r.estado) === filtroReporteActual ||
-      (r.estado || "").toLowerCase().includes(filtroReporteActual)
-    );
-  }
+// Filtrar únicamente por el estado del reporte
+if (filtroReporteActual !== "todos") {
+  filtrados = filtrados.filter((r) =>
+    claseEstado(r.estado) === filtroReporteActual ||
+    (r.estado || "").toLowerCase().includes(filtroReporteActual)
+  );
+}
 
   if (filtrados.length === 0) {
     contenedor.innerHTML = `

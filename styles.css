@@ -61,23 +61,52 @@ body {
 }
 
 .welcome-hero {
-  height: 500px;
-  padding: 70px 28px 20px;
-  text-align: center;
-  background: linear-gradient(
-      rgba(255, 255, 255, 0.2),
-      rgba(255, 255, 255, 0.95)
-    ),
-    url("fondo.jpeg");
-  background-size: cover;
-  background-position: center;
+    height: 500px;
+    padding: 70px 28px 20px;
+    text-align: center;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+/* Fondo ligeramente difuminado */
+.welcome-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-image: url("fondo.jpeg");
+    background-size: cover;
+    background-position: center;
+
+    filter: blur(3px);
+    transform: scale(1.03);
+
+    z-index: -2;
+}
+
+/* Capa blanca para suavizar la fotografía */
+.welcome-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.55) 65%,
+        rgba(255, 255, 255, 0.95) 100%
+    );
+
+    z-index: -1;
 }
 
 .logo-pin {
-  width: 170px;
-  height: 170px;
-  object-fit: contain;
-  margin-bottom: 0.5px;
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    display: block;
+    margin: -20px auto 5px;
 }
 
 .welcome-hero h1 {
@@ -103,11 +132,15 @@ body {
 }
 
 .welcome-actions {
-  background: var(--green);
-  margin: -65px 24px 0;
-  padding: 22px;
-  border-radius: 25px;
-  box-shadow: 0 10px 25px rgba(0, 90, 40, 0.25);
+    position: relative;
+    z-index: 5;
+
+    background: var(--green);
+    margin: -65px 24px 0;
+    padding: 22px;
+
+    border-radius: 25px;
+    box-shadow: 0 10px 25px rgba(0, 90, 40, 0.25);
 }
 
 button {
@@ -417,7 +450,7 @@ textarea:focus {
   border-radius: 18px;
   padding: 13px;
   display: grid;
-  grid-template-columns: 70px 1fr 18px;
+  grid-template-columns: 85px minmax(0, 1fr) 18px;
   gap: 12px;
   align-items: center;
   margin-bottom: 12px;
@@ -426,23 +459,22 @@ textarea:focus {
 }
 
 .report-img {
-  width: 70px;
-  height: 62px;
-  border-radius: 12px;
-  object-fit: cover;
-  background: #edf1ef;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 28px;
+    width: 85px;
+    height: 85px;
+    border-radius: 0;
+    object-fit: cover;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
 }
 
-/* Logo que reemplaza al emoji de pin/ciudad cuando un reporte no tiene foto */
 .report-img-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  opacity: 0.85;
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    opacity: 1;
 }
 
 .detail-image-logo {
@@ -2059,4 +2091,158 @@ textarea:focus {
 .check-notif-fijo {
   color: var(--green);
   font-weight: 700;
+}
+
+
+
+/* ==================================
+   GUÍA DESPLEGABLE - FOCO URBANO
+================================== */
+
+.guide-accordion {
+    padding: 0;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #D6C2A7;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(46, 51, 42, 0.06);
+}
+
+.guide-accordion summary {
+    list-style: none;
+    padding: 20px;
+    color: #2E332A;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.guide-accordion summary::-webkit-details-marker {
+    display: none;
+}
+
+.guide-accordion summary::after {
+    content: "⌄";
+    font-size: 24px;
+    color: #7E8A6A;
+    transition: transform 0.25s ease;
+}
+
+.guide-accordion[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.guide-content {
+    padding: 0 20px 18px;
+}
+
+.guide-content .guide-step:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =====================================
+   GUÍA DESPLEGABLE - ESTILO MINIMALISTA
+===================================== */
+
+.guide-accordion {
+    margin: 0 22px 18px;
+    border: 1px solid rgba(180, 154, 122, 0.35);
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    box-shadow: 0 5px 18px rgba(46, 51, 42, 0.045);
+}
+
+.guide-accordion summary {
+    padding: 17px 19px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: #2E332A;
+}
+
+.guide-accordion summary::after {
+    font-size: 19px;
+    font-weight: 400;
+    color: #7E8A6A;
+}
+
+.guide-content {
+    padding: 3px 19px 16px;
+}
+
+.guide-content .guide-step p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #596154;
+}
+
+
+/* ===================================
+   TARJETA COMUNITARIA ANIMADA
+=================================== */
+
+.community-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    margin: 12px 22px 25px;
+    padding: 18px 15px 18px 20px;
+
+    background: linear-gradient(
+        135deg,
+        #F3E8D8,
+        #FFFFFF
+    );
+
+    border: 1px solid #D6C2A7;
+    border-radius: 22px;
+
+    box-shadow: 0 6px 20px rgba(46, 51, 42, 0.06);
+    overflow: hidden;
+}
+
+.community-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.community-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #7E8A6A;
+    margin-bottom: 10px;
+}
+
+.community-info h3 {
+    font-size: 17px;
+    font-weight: 650;
+    color: #2E332A;
+    margin-bottom: 8px;
+}
+
+.community-info p {
+    font-size: 11px;
+    line-height: 1.5;
+    color: #6F756A;
+}
+
+.community-animation {
+    width: 125px;
+    height: 125px;
+    flex-shrink: 0;
+    object-fit: contain;
 }

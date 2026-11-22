@@ -7,6 +7,7 @@ import os
 import uuid
 import random
 import time
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -126,8 +127,17 @@ def registro():
     if not nombre or not correo or not contrasena:
         return jsonify({"error": "Faltan campos obligatorios (nombre, correo, contraseña)."}), 400
 
-    if len(contrasena) < 4:
-        return jsonify({"error": "La contraseña debe tener al menos 4 caracteres."}), 400
+    # Validar el formato del correo electrónico
+    patron_correo = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+
+    if not re.fullmatch(patron_correo, correo):
+        return jsonify({
+        "error": "Ingresa un correo electrónico válido."
+    }), 400
+
+    if len(contrasena) < 8:
+       return jsonify({"error": "La contraseña debe tener al menos 8 caracteres."
+    }), 400 
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -270,8 +280,10 @@ def actualizar_password():
     if not correo or not nueva_contrasena:
         return jsonify({"error": "Faltan datos para actualizar la contraseña."}), 400
 
-    if len(nueva_contrasena) < 4:
-        return jsonify({"error": "La contraseña debe tener al menos 4 caracteres."}), 400
+    if len(nueva_contrasena) < 8:
+         return jsonify({
+        "error": "La contraseña debe tener al menos 8 caracteres."
+    }), 400
 
     registro_codigo = codigos_recuperacion.get(correo)
     if not registro_codigo or not registro_codigo.get("verificado"):
@@ -300,8 +312,10 @@ def cambiar_password():
     if not idUsuario or not contrasenaActual or not nuevaContrasena:
         return jsonify({"error": "Faltan datos para cambiar la contraseña."}), 400
 
-    if len(nuevaContrasena) < 4:
-        return jsonify({"error": "La nueva contraseña debe tener al menos 4 caracteres."}), 400
+    if len(nuevaContrasena) < 8:
+            return jsonify({
+        "error": "La nueva contraseña debe tener al menos 8 caracteres."
+    }), 400
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -608,7 +622,7 @@ def servir_evidencia(filename):
 
 @app.route("/<path:filename>")
 def archivos_frontend(filename):
-    extensiones = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp")
+    extensiones = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp", ".gif")
 
     if not filename.lower().endswith(extensiones):
         return "Archivo no encontrado", 404
