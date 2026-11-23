@@ -1133,8 +1133,8 @@ textarea:focus {
    todo (para que conserve el verde de marca) */
 .phone-container.dark-mode .bottom-nav button.active-nav img {
   filter: none;
-  background: rgba(1, 119, 101, 0.35);
-  box-shadow: 0 0 0 2px rgba(1, 119, 101, 0.5);
+  background: #BBD9C4;
+  box-shadow: 0 0 0 2px rgba(169, 188, 165, 0.45);
 }
 
 .phone-container.font-large {
@@ -2038,6 +2038,163 @@ textarea:focus {
   filter: none !important;
 }
 
+/* =============================================
+   MODO OSCURO - CONTRASTE EN COMPONENTES MODERNOS
+   Notificaciones, perfil municipal e inicio
+============================================= */
+
+/* Las tarjetas de notificaciones cambian junto con sus letras. */
+.phone-container.dark-mode .fu-n-hero,
+.phone-container.dark-mode .fu-n-info {
+    background: linear-gradient(135deg, #253B2E 0%, #1C2E24 100%);
+    border-color: #3D5846;
+}
+
+.phone-container.dark-mode .fu-n-card,
+.phone-container.dark-mode .fu-n-empty {
+    background: #1F3126;
+    border-color: #3D5846;
+}
+
+.phone-container.dark-mode .fu-n-card-read {
+    background: #17271E;
+}
+
+.phone-container.dark-mode .fu-n-hero h2,
+.phone-container.dark-mode .fu-n-info strong,
+.phone-container.dark-mode .fu-n-card-top strong,
+.phone-container.dark-mode .fu-n-section-title h3,
+.phone-container.dark-mode .fu-n-empty h3 {
+    color: #F0F5EF;
+}
+
+.phone-container.dark-mode .fu-n-hero p,
+.phone-container.dark-mode .fu-n-info p,
+.phone-container.dark-mode .fu-n-message,
+.phone-container.dark-mode .fu-n-empty p,
+.phone-container.dark-mode .fu-n-loading {
+    color: #C7D7CA;
+}
+
+.phone-container.dark-mode .fu-n-counter,
+.phone-container.dark-mode .fu-n-section-title span {
+    background: #334E3C;
+    color: #E0F0E3;
+}
+
+.phone-container.dark-mode .fu-n-new {
+    background: #345741;
+    color: #E0F3E5;
+}
+
+.phone-container.dark-mode .fu-n-date {
+    color: #B6C9B9;
+}
+
+.phone-container.dark-mode .fu-n-read-btn {
+    background: #355140;
+    color: #E1F2E4;
+}
+
+.phone-container.dark-mode .fu-n-read-btn:hover {
+    background: #46664F;
+}
+
+.phone-container.dark-mode .fu-n-hero-icon {
+    background: #EAF1E9;
+    color: #315C4C;
+}
+
+.phone-container.dark-mode .fu-n-info-icon {
+    color: #B2CAAF;
+}
+
+/* La ficha de identidad del funcionario también usa una paleta nocturna. */
+.phone-container.dark-mode #scr-perfil-funcionario .fu-perfil-hero {
+    background: linear-gradient(135deg, #253B2E 0%, #1E3127 100%);
+    border-color: #3D5846;
+}
+
+.phone-container.dark-mode #scr-perfil-funcionario .fu-perfil-badge {
+    background: #375441;
+    color: #E2F0E2;
+}
+
+.phone-container.dark-mode #scr-perfil-funcionario #nombre-funcionario {
+    color: #F0F5EF;
+}
+
+.phone-container.dark-mode #scr-perfil-funcionario #correo-funcionario {
+    color: #C7D7CA;
+}
+
+/* Corrige los ajustes blancos que mostraban etiquetas blancas invisibles. */
+.phone-container.dark-mode #scr-perfil-funcionario .drawer-row {
+    background: #273C2F;
+    border-color: #3D5846;
+    color: #F0F5EF;
+}
+
+.phone-container.dark-mode #scr-perfil-funcionario .drawer-row select {
+    background: #1D2F24;
+    border-color: #49624E;
+    color: #F0F5EF;
+}
+
+/* En inicio, el acordeón y la tarjeta ilustrada no pueden conservar fondos claros. */
+.phone-container.dark-mode .guide-accordion {
+    background: #22362A;
+    border-color: #3D5846;
+}
+
+.phone-container.dark-mode .guide-accordion summary {
+    color: #F0F5EF;
+}
+
+.phone-container.dark-mode .guide-accordion summary::after {
+    color: #B8D3BF;
+}
+
+.phone-container.dark-mode .guide-content .guide-step p {
+    color: #CFDFD2;
+}
+
+.phone-container.dark-mode .guide-card h3 {
+    color: #D5EAD9 !important;
+}
+
+.phone-container.dark-mode .community-card {
+    background: linear-gradient(135deg, #294033 0%, #1C3026 100%);
+    border-color: #48604D;
+}
+
+.phone-container.dark-mode .community-card .community-label {
+    color: #C0D6BF;
+}
+
+.phone-container.dark-mode .community-card .community-info h3 {
+    color: #F0F5EF;
+}
+
+.phone-container.dark-mode .community-card .community-info p {
+    color: #CFDFD2;
+}
+
+/* Asegurar que el botón activo de la navegación sea legible. */
+.phone-container.dark-mode .bottom-nav button.active-nav,
+.phone-container.dark-mode .bottom-nav button.active-nav span {
+    color: #BFE7CB !important;
+}
+
+/* La carga conserva sus letras oscuras sobre el degradado, incluso durante cambios de tema. */
+.phone-container.dark-mode .fu-login-loader-content h2 {
+    color: #315C4C;
+}
+
+.phone-container.dark-mode .fu-login-loader-content p {
+    color: #527C6B;
+}
+
 /* ============================= */
 /* FOTO EDITABLE FUNCIONARIO */
 /* ============================= */
@@ -2091,7 +2248,64 @@ textarea:focus {
 }
 
 #scr-perfil-funcionario {
-  padding-top: 4px;
+    padding-top: 4px;
+    padding-bottom: 110px;
+    background: linear-gradient(
+        180deg,
+        #FAF8F4 0%,
+        #FFFFFF 75%
+    );
+}
+
+/* ======================================
+   PERFIL MUNICIPAL - TARJETA PRINCIPAL
+====================================== */
+
+.fu-perfil-hero {
+    margin: 20px 18px 22px;
+    padding: 22px 18px 24px;
+
+    background: linear-gradient(
+        135deg,
+        #EDF3ED 0%,
+        #FFF9F1 100%
+    );
+
+    border: 1px solid #E7DDCF;
+    border-radius: 25px;
+
+    text-align: center;
+
+    box-shadow: 0 8px 25px rgba(45, 76, 59, 0.05);
+}
+
+.fu-perfil-badge {
+    display: inline-block;
+
+    background: rgba(255, 255, 255, 0.85);
+    color: #648B79;
+
+    padding: 8px 13px;
+    border-radius: 20px;
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+#nombre-funcionario {
+    font-size: 21px;
+    font-weight: 750;
+    color: #315C4C;
+
+    margin-bottom: 6px;
+}
+
+#correo-funcionario {
+    font-size: 12px;
+    color: #77857A;
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
 }
 
 #scr-perfil-funcionario .funcionario-avatar {
@@ -2101,23 +2315,49 @@ textarea:focus {
 /* Bordes turquesa oscuro para resaltar cada sección de configuración
    dentro del perfil del funcionario */
 #scr-perfil-funcionario .detail-box.drawer-config {
-  border: 1px solid var(--turquesa-oscuro);
+    background: #FFFFFF;
+
+    border: 1px solid #E6D8C8;
+    border-radius: 22px;
+
+    margin: 14px 18px;
+    padding: 19px;
+
+    box-shadow: 0 6px 20px rgba(45, 76, 59, 0.04);
+}
+
+#scr-perfil-funcionario .drawer-row {
+    background: #FCFAF7;
+
+    border: 1px solid #EDE1D2;
+    border-radius: 16px;
+
+    padding: 14px;
+    margin-bottom: 12px;
 }
 
 /* Botones de "Ayuda y preguntas frecuentes" y "Contactar soporte":
    relleno turquesa claro con borde turquesa oscuro */
 #scr-perfil-funcionario .drawer-help {
-  background: var(--turquesa-claro);
-  border: 2px solid var(--turquesa-oscuro);
-  color: var(--turquesa-oscuro);
-  font-size: 14px;
+    background: #EEF3ED;
+    border: 1px solid #DAE7DE;
+
+    border-radius: 13px;
+    padding: 14px;
+
+    color: #365F4F;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 #scr-perfil-funcionario .btn-secondary {
-  background: var(--turquesa-claro);
-  border: 2px solid var(--turquesa-oscuro);
-  color: var(--turquesa-oscuro);
-  font-weight: 700;
+    background: #FFFFFF;
+
+    border: 1px solid #E6D8C8;
+    border-radius: 13px;
+
+    color: #365F4F;
+    font-weight: 700;
 }
 
 /* ============================= */
@@ -2883,4 +3123,56 @@ textarea:focus {
 .welcome-actions .btn-primary:hover {
     background: #638B78 !important;
     border-color: #638B78 !important;
+}
+
+
+/* ==========================================
+   PANTALLA DE CARGA - FOCO URBANO
+========================================== */
+
+.fu-login-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        145deg,
+        #FFF8EF 0%,
+        #EEF3ED 55%,
+        #DCE9DF 100%
+    );
+
+    text-align: center;
+}
+
+.fu-login-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+}
+
+.fu-login-loader-logo {
+    width: 210px;
+    height: 210px;
+    object-fit: contain;
+}
+
+.fu-login-loader-content h2 {
+    margin: 15px 0 8px;
+    font-size: 27px;
+    font-weight: 800;
+    color: #315C4C;
+    letter-spacing: 1px;
+}
+
+.fu-login-loader-content p {
+    font-size: 13px;
+    color: #6F9988;
+    margin: 0;
 }
