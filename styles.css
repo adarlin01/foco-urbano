@@ -1,16 +1,28 @@
 :root {
-  --green: #017765;
-  --green-dark: #034f44;
-  --green-soft: #eaf1ff;
-  --gray-bg: #f4f6f5;
-  --text: #1f2a24;
-  --muted: #6c7a71;
-  --border: #e2e8e4;
-  --yellow: #f6c85f;
-  --red: #d9534f;
-  --blue: #4a90e2;
-  --turquesa-oscuro: #045c53;
-  --turquesa-claro: #d7f2ee;
+    /* Identidad visual Foco Urbano */
+    --green: #315C4C;
+    --green-dark: #243C33;
+    --green-soft: #EEF3EC;
+
+    --gray-bg: #FAF8F4;
+    --text: #243C33;
+    --muted: #72786F;
+    --border: #E6D8C8;
+
+    /* Colores complementarios */
+    --beige: #F3E8D8;
+    --beige-dark: #D6C2A7;
+    --sage: #A9BCA5;
+    --olive: #7E8A6A;
+
+    /* Estados */
+    --yellow: #F6C85F;
+    --red: #D9534F;
+    --blue: #4A90E2;
+
+    /* Compatibilidad con estilos anteriores */
+    --turquesa-oscuro: #315C4C;
+    --turquesa-claro: #EEF3EC;
 }
 
 * {
@@ -250,6 +262,63 @@ button {
 
 .form-container.align-left {
   text-align: left;
+}
+
+/* ==========================================
+   CREAR REPORTE - DISEÑO BEIGE Y EUCALIPTO
+========================================== */
+
+/* Fondo delicado */
+#scr-crear-reporte {
+    background: linear-gradient(
+        180deg,
+        #FFFFFF 0%,
+        #FCF9F5 100%
+    );
+}
+
+/* Espaciado del formulario */
+#scr-crear-reporte .form-container {
+    padding: 30px 25px 110px;
+}
+
+/* Título Información del problema */
+#scr-crear-reporte .form-container h3 {
+    text-align: center;
+    color: #405F51;
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -0.4px;
+    margin-bottom: 28px;
+}
+
+/* Campos */
+#scr-crear-reporte input,
+#scr-crear-reporte select,
+#scr-crear-reporte textarea {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid #E5D5C3;
+    border-radius: 16px;
+    padding: 15px;
+    color: #2E332A;
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+/* Efecto al seleccionar un campo */
+#scr-crear-reporte input:focus,
+#scr-crear-reporte select:focus,
+#scr-crear-reporte textarea:focus {
+    border-color: #729C89;
+    box-shadow: 0 0 0 3px rgba(114, 156, 137, 0.12);
+}
+
+/* Etiquetas */
+#scr-crear-reporte label {
+    color: #405F51;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 9px;
 }
 
 .icon-circle {
@@ -1439,6 +1508,276 @@ textarea:focus {
   padding: 0 0 16px;
 }
 
+/* ==========================================
+   FOCO URBANO - NOTIFICACIONES MODERNAS
+   Beige cálido + verde eucalipto
+========================================== */
+
+.fu-n-layout {
+    padding: 20px 18px 105px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ENCABEZADO DE ACTIVIDAD */
+
+.fu-n-hero {
+    background: linear-gradient(135deg, #EEF3ED, #FFF9F1);
+    border: 1px solid #E4DFD3;
+    border-radius: 24px;
+    padding: 22px;
+    margin-bottom: 26px;
+    box-shadow: 0 6px 20px rgba(46, 51, 42, 0.04);
+}
+
+.fu-n-hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.fu-n-hero-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    background: #FFFFFF;
+    border-radius: 15px;
+    font-size: 22px;
+}
+
+.fu-n-counter {
+    background: #FFFFFF;
+    color: #527C6B;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.fu-n-hero h2 {
+    color: #315C4C;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+.fu-n-hero p {
+    color: #69786D;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* TÍTULO DE NOTIFICACIONES */
+
+.fu-n-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.fu-n-section-title h3 {
+    color: #315C4C;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.fu-n-section-title span {
+    background: #F3E8D8;
+    color: #6F756A;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+/* TARJETAS DE NOTIFICACIONES */
+
+.fu-n-list {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.fu-n-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #FFFFFF;
+    border: 1px solid #E6D8C8;
+    border-radius: 20px;
+    padding: 17px 14px;
+    box-shadow: 0 5px 18px rgba(46, 51, 42, 0.04);
+}
+
+.fu-n-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.fu-n-resuelto {
+    background: #E6F2EA;
+    color: #5F9478;
+}
+
+.fu-n-rechazado {
+    background: #FAECE7;
+    color: #C98570;
+}
+
+.fu-n-proceso,
+.fu-n-general {
+    background: #F3EBDD;
+    color: #B18A5E;
+}
+
+.fu-n-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.fu-n-card-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 8px;
+}
+
+.fu-n-card-top strong {
+    color: #315C4C;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.fu-n-new {
+    background: #E8F2EA;
+    color: #638B78;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.fu-n-message {
+    color: #69756D;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0 0 12px;
+}
+
+.fu-n-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.fu-n-date {
+    color: #93998F;
+    font-size: 10px;
+}
+
+.fu-n-read-btn {
+    background: #EEF3ED;
+    color: #527C6B;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fu-n-read-btn:hover {
+    background: #E0EBE3;
+}
+
+.fu-n-read-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.fu-n-card-read {
+    background: #FCFBF8;
+}
+
+/* TARJETA INFORMATIVA INFERIOR */
+
+.fu-n-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    background: linear-gradient(135deg, #FFF9F1, #F7F0E7);
+    border: 1px solid #E9DDCE;
+    border-radius: 20px;
+    padding: 19px;
+    margin-top: 26px;
+}
+
+.fu-n-info-icon {
+    color: #9DAD8D;
+    font-size: 24px;
+}
+
+.fu-n-info strong {
+    display: block;
+    color: #315C4C;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.fu-n-info p {
+    color: #788077;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ESTADOS VACÍOS Y CARGA */
+
+.fu-n-loading,
+.fu-n-empty {
+    text-align: center;
+    padding: 30px 18px;
+    color: #728077;
+    font-size: 12px;
+}
+
+.fu-n-empty {
+    background: #FAF8F4;
+    border: 1px solid #E9DFD3;
+    border-radius: 20px;
+}
+
+.fu-n-empty-icon {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.fu-n-empty h3 {
+    color: #315C4C;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.fu-n-empty p {
+    color: #728077;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
 #estado-ubicacion {
   margin-bottom: 14px;
 }
@@ -2245,4 +2584,303 @@ textarea:focus {
     height: 125px;
     flex-shrink: 0;
     object-fit: contain;
+}
+
+
+/* =========================================
+   FOCO URBANO - PALETA AESTHETIC
+   Beige cálido + verde bosque
+========================================= */
+
+/* Títulos principales */
+.welcome-hero h1 {
+    color: #315C4C !important;
+}
+
+/* Fondo beige del panel de bienvenida */
+.welcome-actions {
+    background: #F3E8D8 !important;
+    border: 1px solid rgba(214, 194, 167, 0.65);
+    box-shadow: 0 12px 30px rgba(49, 92, 76, 0.10);
+}
+
+/* Botón de inicio de sesión */
+.welcome-actions .btn-primary {
+    background: #315C4C !important;
+    color: #FFFFFF !important;
+}
+
+/* Botón de registro */
+.welcome-actions .btn-secondary {
+    background: #FFFFFF !important;
+    color: #243C33 !important;
+    border: 1px solid #D6C2A7;
+}
+
+/* Enlace de acceso municipal */
+.welcome-actions .btn-link {
+    color: #315C4C !important;
+}
+
+/* Encabezado del perfil */
+.drawer-profile {
+    background: #6F9988 !important;
+}
+
+/* Botones principales */
+.big-action,
+.btn-primary,
+.panel-card,
+.guide-step span,
+.tabs .active-tab {
+    background: #315C4C !important;
+}
+
+/* Colores de títulos y enlaces */
+.guide-card h3,
+.drawer-history h4,
+.small-text span,
+.form-container h3,
+.map-placeholder h2,
+.report-info h4,
+.bottom-nav button.active-nav,
+.bottom-nav button.active-nav span {
+    color: #315C4C !important;
+}
+
+/* Tarjetas del menú lateral */
+.drawer-row,
+.drawer-history {
+    background: #FAF8F4;
+    border-color: #E6D8C8;
+}
+
+/* Historial del ciudadano */
+.menu-report-item {
+    background: #FFFFFF;
+    border-color: #E6D8C8;
+}
+
+/* Botón cambiar contraseña */
+.drawer-help,
+.drawer-help-small {
+    background: #EEF3EC;
+    color: #315C4C;
+    border-color: #D6C2A7;
+}
+
+/* Barra inferior, efecto cristal suave */
+.bottom-nav {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid rgba(214, 194, 167, 0.45);
+}
+
+/* Indicador del icono seleccionado */
+.bottom-nav button.active-nav img {
+    background: rgba(169, 188, 165, 0.25);
+    box-shadow: 0 0 0 1px rgba(169, 188, 165, 0.45);
+}
+
+/* Tarjeta desplegable */
+.guide-accordion {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #E6D8C8;
+}
+
+/* Tarjeta comunitaria */
+.community-card {
+    background: linear-gradient(135deg, #F3E8D8, #FFFFFF);
+    border-color: #D6C2A7;
+}
+
+/* Elementos decorativos oliva */
+.community-label,
+.community-card-accent {
+    color: #7E8A6A;
+}
+
+/* Campos de formularios */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #A9BCA5;
+    box-shadow: 0 0 0 3px rgba(169, 188, 165, 0.18);
+}
+
+/* Botón cambiar contraseña: estilo beige */
+.drawer-menu .drawer-help,
+.drawer-menu .btn-secondary {
+    background: #F3E8D8 !important;
+    color: #315C4C !important;
+    border: 1px solid #D6C2A7 !important;
+    border-radius: 14px;
+    box-shadow: none;
+}
+
+
+/* ==========================================
+   FOCO URBANO - LOGIN SUAVE Y MINIMALISTA
+========================================== */
+
+/* Tarjetas de inicio de sesión y registro */
+.auth-card,
+.auth-card.tone-light,
+.auth-card.tone-lighter {
+    background: linear-gradient(
+        145deg,
+        #F3E8D8 0%,
+        #FAF7F2 55%,
+        #FFFFFF 100%
+    ) !important;
+
+    border: 1px solid rgba(214, 194, 167, 0.65);
+    box-shadow: 0 10px 30px rgba(46, 51, 42, 0.07);
+}
+
+/* Títulos y textos oscuros sobre el fondo claro */
+.auth-card h2 {
+    color: #2E332A !important;
+    font-weight: 650;
+    letter-spacing: -0.4px;
+}
+
+.auth-card label,
+.auth-card > p,
+.auth-card .small-text,
+.auth-card .small-text span,
+.auth-card .remember-row label,
+.auth-card .link-recuperar {
+    color: #4F594D !important;
+}
+
+/* Círculo donde aparece el icono */
+.auth-card .icon-circle {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(214, 194, 167, 0.5);
+}
+
+/* Campos del formulario */
+.auth-card input:not([type="checkbox"]) {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #E6D8C8;
+    color: #2E332A;
+    border-radius: 16px;
+}
+
+/* Botón principal */
+.auth-card .btn-primary {
+    background: #6F9988 !important;
+    color: #FFFFFF !important;
+    border-radius: 16px;
+    box-shadow: none !important;
+}
+
+.auth-card .btn-primary:hover {
+    background: #5B8575 !important;
+}
+
+/* Enlaces del formulario */
+.auth-card .small-text span,
+.auth-card .link-recuperar {
+    color: #527C6C !important;
+}
+
+/* Mensajes informativos */
+.auth-card .hint {
+    background: rgba(255, 255, 255, 0.65);
+    color: #4F594D !important;
+}
+
+
+
+/* Botones principales más suaves */
+.big-action,
+.panel-card,
+.btn-primary,
+.tabs .active-tab {
+    background: #6F9988 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 5px 16px rgba(111, 153, 136, 0.12) !important;
+}
+
+/* Mantener tarjetas especiales con fondos suaves */
+.guide-card,
+.community-card {
+    box-shadow: 0 6px 20px rgba(46, 51, 42, 0.04);
+}
+
+
+/* ============================================
+   FOCO URBANO - BIENVENIDA BEIGE ELEGANTE
+============================================ */
+
+/* Tarjeta de botones con degradado delicado */
+.welcome-actions {
+    background: linear-gradient(
+        145deg,
+        #F3E8D8 0%,
+        #FAF5ED 55%,
+        #FFFFFF 100%
+    ) !important;
+
+    border: 1px solid rgba(214, 194, 167, 0.65);
+    border-radius: 28px;
+
+    box-shadow: 0 12px 30px rgba(46, 51, 42, 0.07);
+}
+
+/* Botón Iniciar sesión: oliva suave */
+.welcome-actions .btn-primary {
+    background: #E5EDDF !important;
+    color: #455740 !important;
+
+    border: 1.5px solid #7E8A6A !important;
+    border-radius: 16px;
+
+    box-shadow: none !important;
+    transition: all 0.25s ease;
+}
+
+/* Efecto al pasar el cursor */
+.welcome-actions .btn-primary:hover {
+    background: #D8E4D0 !important;
+    border-color: #6F7D5E !important;
+    transform: translateY(-1px);
+}
+
+/* Botón Registrarse */
+.welcome-actions .btn-secondary {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #2E332A !important;
+
+    border: 1px solid #D6C2A7;
+    border-radius: 16px;
+
+    box-shadow: none;
+}
+
+/* Acceso funcionario municipal */
+.welcome-actions .btn-link {
+    background: transparent !important;
+    color: #526B58 !important;
+    text-decoration: underline;
+    text-decoration-color: #B49A7A;
+    text-underline-offset: 4px;
+}
+
+/* Botón de bienvenida: verde eucalipto suave */
+.welcome-actions .btn-primary {
+    background: #729C89 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #729C89 !important;
+    border-radius: 16px;
+    box-shadow: none !important;
+    transition: background 0.25s ease;
+}
+
+.welcome-actions .btn-primary:hover {
+    background: #638B78 !important;
+    border-color: #638B78 !important;
 }
