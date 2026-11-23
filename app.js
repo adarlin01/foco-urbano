@@ -103,6 +103,10 @@ function cambiarPantalla(idPantalla) {
   }
 
   actualizarMenuActivo(idPantalla);
+
+// Actualizar el tema al cambiar de pantalla
+actualizarModoOscuroPorPantalla();
+
 }
 
 // -----------------------------
@@ -118,8 +122,8 @@ async function registrarCiudadano() {
     return;
   }
 
-  if (pass.length < 4) {
-    alert("La contraseña debe tener al menos 4 caracteres.");
+  if (pass.length < 8) {
+    alert("La contraseña debe tener al menos 8 caracteres.");
     return;
   }
 
@@ -154,6 +158,43 @@ async function registrarCiudadano() {
   }
 }
 
+// ==========================================
+// PANTALLA DE CARGA - FOCO URBANO
+// ==========================================
+
+async function mostrarCargaFocoUrbano() {
+
+    const contenedor = document.querySelector(".phone-container");
+
+    if (!contenedor) return;
+
+    const pantalla = document.createElement("div");
+
+    pantalla.className = "fu-login-loader";
+
+    pantalla.innerHTML = `
+        <div class="fu-login-loader-content">
+
+            <img
+                src="Log.png"
+                alt="Logo de Foco Urbano"
+                class="fu-login-loader-logo"
+            >
+
+            <p>Conectando nuestra ciudad</p>
+
+        </div>
+    `;
+
+    contenedor.appendChild(pantalla);
+
+    // Mostrar la pantalla durante 2 segundos
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Cerrar la pantalla de carga
+    pantalla.remove();
+}
+
 async function loginCiudadano() {
   const correo = document.getElementById("login-correo").value.trim().toLowerCase();
   const pass = document.getElementById("login-pass").value.trim();
@@ -184,6 +225,8 @@ async function loginCiudadano() {
 
     document.getElementById("login-correo").value = "";
     document.getElementById("login-pass").value = "";
+
+    await mostrarCargaFocoUrbano();
 
     if (data.rol === "Funcionario Municipal") {
       cambiarPantalla("scr-panel-funcionario");
@@ -1421,7 +1464,8 @@ async function renderizarNotificaciones() {
             </div>
         `;
 
-        layout.appendChild(informacion);
+        informacion.style.margin = "0 0 20px";
+        layout.prepend(informacion);
 
         contenedor.replaceChildren(layout);
 
@@ -1481,54 +1525,242 @@ async function marcarNotificacionLeidaCiudadano(idNotificacion, boton) {
 // Muestra, a modo de "avisos", TODOS los reportes hechos por los ciudadanos
 // (los ya existentes y los que se vayan creando), con toda su información,
 // en vez de depender únicamente de la tabla de notificaciones.
+// ==========================================
+// NOTIFICACIONES MODERNAS - FUNCIONARIO
+// ==========================================
+
 async function renderizarNotificacionesFuncionario() {
-  const pantalla = document.getElementById("scr-notificaciones-funcionario");
-  if (!pantalla) return;
 
-  let contenedor = pantalla.querySelector(".notificaciones-dinamicas");
-  if (!contenedor) {
-    contenedor = document.createElement("div");
-    contenedor.className = "notificaciones-dinamicas";
-    pantalla.appendChild(contenedor);
-  }
+    const pantalla = document.getElementById("scr-notificaciones-funcionario");
+    if (!pantalla) return;
 
-  if (!usuarioActual) {
-    contenedor.innerHTML = `
-      <div class="empty-state">
-        <img src="vacio.png" alt="Sin notificaciones">
-        <p>Inicia sesión para ver los avisos.</p>
-      </div>
-    `;
-    return;
-  }
+    let contenedor = pantalla.querySelector(".notificaciones-dinamicas");
 
-  contenedor.innerHTML = "<p style='padding:14px;color:#6c7a71;'>Cargando avisos...</p>";
-
-  try {
-    const res = await fetch(`${API_URL}/reportes`);
-    const reportes = await res.json();
-
-    todosLosReportes = reportes;
-
-    if (reportes.length === 0) {
-      contenedor.innerHTML = `
-        <div class="empty-state">
-          <img src="vacio.png" alt="Sin notificaciones">
-          <p>No hay reportes de ciudadanos todavía.</p>
-        </div>
-      `;
-      return;
+    if (!contenedor) {
+        contenedor = document.createElement("div");
+        contenedor.className = "notificaciones-dinamicas";
+        pantalla.appendChild(contenedor);
     }
 
-    contenedor.innerHTML = "";
+    if (!usuarioActual) {
+        contenedor.innerHTML = `
+            <div class="fu-n-layout">
+                <div class="fu-n-empty">
+                    <div class="fu-n-empty-icon">🏛️</div>
+                    <h3>Acceso municipal</h3>
+                    <p>Inicia sesión para consultar los reportes recibidos.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
-    reportes.forEach((reporte) => {
-      contenedor.innerHTML += crearTarjetaAvisoFuncionario(reporte);
-    });
-  } catch (error) {
-    console.error(error);
-    contenedor.innerHTML = "<p style='padding:14px;color:#d9534f;'>No se pudo conectar con el servidor.</p>";
-  }
+    contenedor.innerHTML = `
+        <div class="fu-n-layout">
+            <p class="fu-n-loading">Cargando reportes municipales...</p>
+        </div>
+    `;
+
+    try {
+
+        const respuesta = await fetch(`${API_URL}/reportes`);
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar los reportes.");
+        }
+
+        const reportes = await respuesta.json();
+
+        // Conservar los reportes para abrir sus detalles
+        todosLosReportes = reportes;
+
+        const pendientes = reportes.filter(
+            r => claseEstado(r.estado) === "pendiente"
+        ).length;
+
+        const layout = document.createElement("div");
+        layout.className = "fu-n-layout";
+
+        // TARJETA PRINCIPAL
+        layout.innerHTML = `
+            <div class="fu-n-hero">
+
+                <div class="fu-n-hero-top">
+                    <span class="fu-n-hero-icon">🏛️</span>
+                    <span class="fu-n-counter">
+                        ${pendientes} pendientes
+                    </span>
+                </div>
+
+                <h2>Actividad municipal</h2>
+
+                <p>
+                    ${pendientes > 0
+                        ? `Hay ${pendientes} ${pendientes === 1
+                            ? "reporte pendiente de atención."
+                            : "reportes pendientes de atención."}`
+                        : "¡Todos los reportes están al día!"}
+                </p>
+
+            </div>
+
+            <div class="fu-n-section-title">
+                <h3>Reportes de la comunidad</h3>
+                <span>${reportes.length}</span>
+            </div>
+
+            <div class="fu-n-list"></div>
+        `;
+
+        const lista = layout.querySelector(".fu-n-list");
+
+        // SI NO HAY REPORTES
+        if (reportes.length === 0) {
+
+            lista.innerHTML = `
+                <div class="fu-n-empty">
+                    <div class="fu-n-empty-icon">📋</div>
+                    <h3>Sin reportes por ahora</h3>
+                    <p>
+                        Cuando los ciudadanos registren incidencias,
+                        aparecerán aquí.
+                    </p>
+                </div>
+            `;
+
+        } else {
+
+            reportes.forEach(reporte => {
+
+                const estado = claseEstado(reporte.estado);
+
+                let icono = "↗";
+                let tipo = "general";
+
+                if (estado === "resuelto") {
+                    icono = "✓";
+                    tipo = "resuelto";
+                }
+                else if (estado === "rechazado") {
+                    icono = "!";
+                    tipo = "rechazado";
+                }
+                else if (estado === "en-proceso") {
+                    icono = "↻";
+                    tipo = "proceso";
+                }
+                else if (estado === "pendiente") {
+                    icono = "◷";
+                    tipo = "general";
+                }
+
+                const tarjeta = document.createElement("article");
+
+                tarjeta.className = "fu-n-card";
+
+                // Mantener la opción de abrir el reporte
+                tarjeta.style.cursor = "pointer";
+                tarjeta.tabIndex = 0;
+                tarjeta.setAttribute("role", "button");
+
+                tarjeta.innerHTML = `
+                    <div class="fu-n-icon fu-n-${tipo}">
+                        ${icono}
+                    </div>
+
+                    <div class="fu-n-card-content">
+
+                        <div class="fu-n-card-top">
+                            <strong class="fu-n-titulo"></strong>
+                            <span class="status ${estado} fu-n-estado"></span>
+                        </div>
+
+                        <p class="fu-n-message"></p>
+
+                        <div class="fu-n-meta">
+                            <span class="fu-n-date"></span>
+
+                            <span class="fu-n-read-btn">
+                                Ver reporte →
+                            </span>
+                        </div>
+
+                    </div>
+                `;
+
+                // Mostrar información del reporte
+                tarjeta.querySelector(".fu-n-titulo").textContent =
+                    reporte.titulo || "Reporte urbano";
+
+                tarjeta.querySelector(".fu-n-estado").textContent =
+                    reporte.estado || "Pendiente";
+
+                tarjeta.querySelector(".fu-n-message").textContent =
+                    `@${reporte.usuario || "Ciudadano"} · ${reporte.categoria || "Sin categoría"}`;
+
+                tarjeta.querySelector(".fu-n-date").textContent =
+                    reporte.fecha || "";
+
+                // Abrir el detalle al seleccionar la tarjeta
+                const abrirReporte = () => {
+                    abrirDetalleFuncionario(reporte.id);
+                };
+
+                tarjeta.addEventListener("click", abrirReporte);
+
+                tarjeta.addEventListener("keydown", (evento) => {
+                    if (evento.key === "Enter" || evento.key === " ") {
+                        evento.preventDefault();
+                        abrirReporte();
+                    }
+                });
+
+                lista.appendChild(tarjeta);
+
+            });
+        }
+
+        // TARJETA INFORMATIVA
+        const informacion = document.createElement("div");
+
+        informacion.className = "fu-n-info";
+
+        informacion.innerHTML = `
+            <span class="fu-n-info-icon">✦</span>
+
+            <div>
+                <strong>Juntos por una mejor ciudad</strong>
+
+                <p>
+                    Consulta los reportes ciudadanos, revisa
+                    las incidencias y actualiza su estado
+                    para mantener informada a la comunidad.
+                </p>
+            </div>
+        `;
+
+        // Separación entre las dos tarjetas municipales
+        informacion.style.marginTop = "0";
+        informacion.style.marginBottom = "26px";
+
+       // Colocar la tarjeta informativa al inicio
+        layout.prepend(informacion);
+
+        contenedor.replaceChildren(layout);
+
+    } catch (error) {
+
+        console.error("Error cargando avisos municipales:", error);
+
+        contenedor.innerHTML = `
+            <div class="fu-n-layout">
+                <div class="fu-n-empty">
+                    <h3>No pudimos cargar los reportes</h3>
+                    <p>Comprueba la conexión con el servidor.</p>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // -----------------------------
@@ -1720,23 +1952,61 @@ function cambiarFotoFuncionario(input) {
   lector.readAsDataURL(input.files[0]);
 }
 
+// Aplicar modo oscuro únicamente a las pantallas internas
+function actualizarModoOscuroPorPantalla() {
+
+    const phone = document.querySelector(".phone-container");
+    if (!phone) return;
+
+    const pantalla = document.querySelector(".screen.active");
+    const idPantalla = pantalla ? pantalla.id : "";
+
+    const pantallasSinModoOscuro = [
+        "scr-bienvenida",
+        "scr-login",
+        "scr-login-funcionario",
+        "scr-registro-ciudadano",
+        "scr-recuperar-correo",
+        "scr-recuperar-codigo",
+        "scr-recuperar-nueva"
+    ];
+
+    const modoOscuroGuardado =
+        localStorage.getItem("foco_modo_oscuro") === "true";
+
+    const aplicarOscuro =
+        modoOscuroGuardado &&
+        !pantallasSinModoOscuro.includes(idPantalla);
+
+    phone.classList.toggle("dark-mode", aplicarOscuro);
+}
 
 // Preferencias visuales: son por dispositivo, así que sí se guardan localmente
 function activarModoOscuroCiudadano(activado) {
-  const phone = document.querySelector(".phone-container");
-  if (activado) {
-    phone.classList.add("dark-mode");
-    localStorage.setItem("foco_modo_oscuro", "true");
-  } else {
-    phone.classList.remove("dark-mode");
-    localStorage.setItem("foco_modo_oscuro", "false");
-  }
 
-  // Mantiene sincronizados los dos interruptores (ciudadano y funcionario)
-  const checkCiudadano = document.getElementById("check-modo-oscuro");
-  const checkFuncionario = document.getElementById("check-modo-oscuro-func");
-  if (checkCiudadano) checkCiudadano.checked = activado;
-  if (checkFuncionario) checkFuncionario.checked = activado;
+    // Guardar la preferencia del usuario
+    localStorage.setItem(
+        "foco_modo_oscuro",
+        activado ? "true" : "false"
+    );
+
+    // Aplicar el tema según la pantalla abierta
+    actualizarModoOscuroPorPantalla();
+
+    // Sincronizar los interruptores
+    const checkCiudadano =
+        document.getElementById("check-modo-oscuro");
+
+    const checkFuncionario =
+        document.getElementById("check-modo-oscuro-func");
+
+    if (checkCiudadano) {
+        checkCiudadano.checked = activado;
+    }
+
+    if (checkFuncionario) {
+        checkFuncionario.checked = activado;
+    }
 }
 
 function cambiarTamanoLetraCiudadano(valor) {
