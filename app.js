@@ -228,8 +228,14 @@ async function loginFuncionario() {
 }
 
 function cerrarSesion() {
+  // Cerrar el menú lateral antes de salir
+  cerrarMenuCiudadano();
+
+  // Eliminar la sesión del usuario
   usuarioActual = null;
   localStorage.removeItem("foco_usuario_actual");
+
+  // Regresar a la pantalla de bienvenida
   cambiarPantalla("scr-bienvenida");
 }
 
@@ -255,7 +261,11 @@ async function cargarCatalogos() {
       fetch(`${API_URL}/estados`)
     ]);
 
-    categoriasCache = await resCat.json();
+    categoriasCache = (await resCat.json()).sort((a, b) => {
+    if (a.nombre === "Otro") return 1;
+    if (b.nombre === "Otro") return -1;
+    return a.nombre.localeCompare(b.nombre, "es");
+});
     corregimientosCache = await resCorr.json();
     estadosCache = await resEst.json();
   } catch (error) {
@@ -299,12 +309,15 @@ function detectarUbicacionGPS() {
   const estadoUbicacion = document.getElementById("estado-ubicacion");
 
   if (!navigator.geolocation) {
-    ubicacionSeleccionada = { ...COORD_DAVID_DEFAULT, precisa: false };
-    if (estadoUbicacion) estadoUbicacion.textContent = "⚠️ Tu navegador no soporta GPS. Se usará una ubicación aproximada.";
+    if (estadoUbicacion) {
+        estadoUbicacion.textContent = ubicacionSeleccionada
+            ? " Se conserva la ubicación seleccionada."
+            : " GPS no disponible. Selecciona tu ubicación en el mapa.";
+    }
     return;
-  }
+}
 
-  if (estadoUbicacion) estadoUbicacion.textContent = "📡 Detectando tu ubicación...";
+  if (estadoUbicacion) estadoUbicacion.textContent = " Detectando tu ubicación...";
 
   navigator.geolocation.getCurrentPosition(
     (posicion) => {
@@ -314,20 +327,437 @@ function detectarUbicacionGPS() {
         precisa: true
       };
       if (estadoUbicacion) {
-        estadoUbicacion.textContent = `✅ Ubicación detectada (precisión ~${Math.round(posicion.coords.accuracy)}m).`;
+        estadoUbicacion.textContent = ` Ubicación detectada (precisión ~${Math.round(posicion.coords.accuracy)}m).`;
       }
     },
-    (error) => {
+        (error) => {
       console.warn("GPS no disponible:", error);
-      ubicacionSeleccionada = { ...COORD_DAVID_DEFAULT, precisa: false };
+
       if (estadoUbicacion) {
-        estadoUbicacion.textContent = "⚠️ No se pudo obtener el GPS. Se usará una ubicación aproximada de David.";
+        estadoUbicacion.textContent = ubicacionSeleccionada
+          ? " Se conserva la ubicación seleccionada."
+          : "No se pudo obtener el GPS. Selecciona tu ubicación en el mapa.";
       }
     },
     { enableHighAccuracy: true, timeout: 8000 }
   );
 }
 
+
+// ==========================================
+// SELECCIÓN MANUAL DE UBICACIÓN EN EL MAPA
+// ==========================================
+
+let mapaSelectorUbicacion = null;
+let marcadorSelectorUbicacion = null;
+let puntoSeleccionado = null;
+
+function abrirSelectorMapa() {
+
+    if (typeof L === "undefined") {
+        alert("No se pudo cargar el mapa. Comprueba tu conexión.");
+        return;
+    }
+
+    const contenedor = document.querySelector(".phone-container");
+
+    let modal = document.getElementById("modal-selector-ubicacion");
+
+    // Crear la ventana solamente una vez
+    if (!modal) {
+
+        modal = document.createElement("div");
+        modal.id = "modal-selector-ubicacion";
+        modal.className = "modal-overlay";
+
+        modal.innerHTML = `
+            <div class="modal-card"
+                 style="max-height:90%; overflow-y:auto;">
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    onclick="cerrarSelectorMapa()">
+                    ×
+                </button>
+
+                <h3>Seleccionar ubicación</h3>
+
+                <p style="font-size:12px; margin-bottom:14px;">
+                    Toca el punto exacto donde ocurre el problema.
+                </p>
+
+                <div
+                    id="mapa-selector-ubicacion"
+                    style="
+                        width:100%;
+                        height:330px;
+                        border-radius:16px;
+                        overflow:hidden;
+                        border:1px solid #D6C2A7;
+                    ">
+                </div>
+
+                <p id="mensaje-ubicacion-manual"
+                   style="font-size:12px; margin:14px 0;">
+                    Toca el mapa para colocar el marcador.
+                </p>
+
+                <button
+                    type="button"
+                    id="btn-confirmar-ubicacion"
+                    class="btn-primary"
+                    onclick="confirmarUbicacionManual()"
+                    disabled>
+                    Confirmar ubicación
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="cerrarSelectorMapa()">
+                    Cancelar
+                </button>
+
+            </div>
+        `;
+
+        contenedor.appendChild(modal);
+    }
+
+    // Reiniciar la selección
+    puntoSeleccionado = null;
+
+    document.getElementById("btn-confirmar-ubicacion").disabled = true;
+
+    document.getElementById("mensaje-ubicacion-manual").textContent =
+        "Toca el mapa para colocar el marcador.";
+
+    modal.classList.add("show");
+
+    // Inicializar Leaflet cuando la ventana esté visible
+    setTimeout(() => {
+
+        if (!mapaSelectorUbicacion) {
+
+            mapaSelectorUbicacion = L.map(
+                "mapa-selector-ubicacion"
+            ).setView([8.4273, -82.4308], 14);
+
+            L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+                    maxZoom: 19,
+                    attribution: "© OpenStreetMap"
+                }
+            ).addTo(mapaSelectorUbicacion);
+
+            // Detectar dónde toca el ciudadano
+            mapaSelectorUbicacion.on("click", function(evento) {
+
+                const lat = evento.latlng.lat;
+                const lng = evento.latlng.lng;
+
+                puntoSeleccionado = {
+                    lat: lat,
+                    lng: lng,
+                    precisa: true,
+                    origen: "manual"
+                };
+
+                // Colocar o mover el marcador
+                if (marcadorSelectorUbicacion) {
+
+                    marcadorSelectorUbicacion.setLatLng(
+                        evento.latlng
+                    );
+
+                } else {
+
+                    marcadorSelectorUbicacion = L.marker(
+                        evento.latlng
+                    ).addTo(mapaSelectorUbicacion);
+
+                }
+
+                document.getElementById(
+                    "mensaje-ubicacion-manual"
+                ).textContent = " Ubicación seleccionada correctamente.";
+
+                document.getElementById(
+                    "btn-confirmar-ubicacion"
+                ).disabled = false;
+
+            });
+        }
+
+        // Limpiar el marcador anterior al abrir de nuevo
+        if (marcadorSelectorUbicacion) {
+            mapaSelectorUbicacion.removeLayer(marcadorSelectorUbicacion);
+            marcadorSelectorUbicacion = null;
+        }
+
+        mapaSelectorUbicacion.invalidateSize();
+
+    }, 150);
+}
+
+
+// Guardar la ubicación seleccionada
+function confirmarUbicacionManual() {
+
+    if (!puntoSeleccionado) {
+        alert("Selecciona un punto en el mapa.");
+        return;
+    }
+
+    ubicacionSeleccionada = { ...puntoSeleccionado };
+
+    document.getElementById("estado-ubicacion").textContent =
+        " Ubicación seleccionada manualmente en el mapa.";
+
+    cerrarSelectorMapa();
+}
+
+
+// Cerrar el mapa
+function cerrarSelectorMapa() {
+
+    const modal = document.getElementById(
+        "modal-selector-ubicacion"
+    );
+
+    if (modal) {
+        modal.classList.remove("show");
+    }
+}
+
+
+// ==========================================
+// VALIDACIÓN Y COMPRESIÓN DE FOTOGRAFÍAS
+// ==========================================
+
+async function validarFotoReporte(input) {
+
+    const archivo = input.files[0];
+
+    if (!archivo) {
+        actualizarNombreArchivoReporte(input);
+        return;
+    }
+
+    const tamanoMaximo = 5 * 1024 * 1024;
+
+    const formatosPermitidos = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    // Validar formato
+    if (!formatosPermitidos.includes(archivo.type)) {
+        alert("Formato no permitido. Utiliza JPG, PNG o WebP.");
+        input.value = "";
+        actualizarNombreArchivoReporte(input);
+        return;
+    }
+
+    // Si pesa 5 MB o menos, no necesita compresión
+if (archivo.size <= tamanoMaximo) {
+    actualizarNombreArchivoReporte(input);
+
+    mostrarToast(
+        " Fotografía seleccionada correctamente. No necesita compresión.",
+        4000
+    );
+
+    return;
+}
+
+    const etiqueta = document.getElementById("nombre-archivo-reporte");
+
+    const botonEnviar = document.querySelector(
+        'button[onclick="crearReporte()"]'
+    );
+
+    if (botonEnviar) botonEnviar.disabled = true;
+
+    if (etiqueta) {
+        etiqueta.textContent = "⏳ Optimizando fotografía...";
+    }
+
+    try {
+
+        const fotoComprimida = await comprimirFotoReporte(archivo);
+
+        if (fotoComprimida.size > tamanoMaximo) {
+            throw new Error("La fotografía sigue superando los 5 MB.");
+        }
+
+        // Reemplazar la fotografía original por la comprimida
+        const transferencia = new DataTransfer();
+
+        transferencia.items.add(fotoComprimida);
+
+        input.files = transferencia.files;
+
+        actualizarNombreArchivoReporte(input);
+
+        console.log(
+            "Fotografía original:",
+            (archivo.size / 1024 / 1024).toFixed(2),
+            "MB"
+        );
+
+        console.log(
+            "Fotografía comprimida:",
+            (fotoComprimida.size / 1024 / 1024).toFixed(2),
+            "MB"
+        );
+
+        mostrarToast(
+    `Fotografía optimizada: ${(archivo.size / 1024 / 1024).toFixed(2)} MB → ${(fotoComprimida.size / 1024 / 1024).toFixed(2)} MB`,
+    6000
+);
+
+    } catch (error) {
+
+        console.error("Error comprimiendo fotografía:", error);
+
+        alert(
+            "No se pudo reducir la fotografía a menos de 5 MB. " +
+            "Selecciona una imagen más pequeña."
+        );
+
+        input.value = "";
+        actualizarNombreArchivoReporte(input);
+
+    } finally {
+
+        if (botonEnviar) botonEnviar.disabled = false;
+
+    }
+}
+
+
+// ==========================================
+// COMPRIMIR FOTOGRAFÍA
+// ==========================================
+
+function comprimirFotoReporte(archivo) {
+
+    return new Promise((resolve, reject) => {
+
+        const imagen = new Image();
+        const url = URL.createObjectURL(archivo);
+
+        imagen.onload = () => {
+
+            URL.revokeObjectURL(url);
+
+            // Reducir la dimensión máxima a 1600 píxeles
+            const maxDimension = 1600;
+
+            const escala = Math.min(
+                1,
+                maxDimension / Math.max(
+                    imagen.naturalWidth,
+                    imagen.naturalHeight
+                )
+            );
+
+            const ancho = Math.max(
+                1,
+                Math.round(imagen.naturalWidth * escala)
+            );
+
+            const alto = Math.max(
+                1,
+                Math.round(imagen.naturalHeight * escala)
+            );
+
+            const canvas = document.createElement("canvas");
+
+            canvas.width = ancho;
+            canvas.height = alto;
+
+            const contexto = canvas.getContext("2d");
+
+            if (!contexto) {
+                reject(new Error("No se pudo procesar la imagen."));
+                return;
+            }
+
+            // Fondo blanco para imágenes con transparencia
+            contexto.fillStyle = "#FFFFFF";
+            contexto.fillRect(0, 0, ancho, alto);
+
+            contexto.drawImage(
+                imagen,
+                0,
+                0,
+                ancho,
+                alto
+            );
+
+            // Convertir a JPG con calidad del 80 %
+            canvas.toBlob((blob) => {
+
+                if (!blob) {
+                    reject(new Error("No se pudo comprimir la fotografía."));
+                    return;
+                }
+
+                const fotoFinal = new File(
+                    [blob],
+                    "evidencia_optimizada.jpg",
+                    { type: "image/jpeg" }
+                );
+
+                resolve(fotoFinal);
+
+            }, "image/jpeg", 0.80);
+        };
+
+        imagen.onerror = () => {
+
+            URL.revokeObjectURL(url);
+
+            reject(new Error("No se pudo abrir la fotografía."));
+
+        };
+
+        imagen.src = url;
+
+    });
+}
+
+// ==========================================
+// TOMAR FOTOGRAFÍA CON LA CÁMARA
+// ==========================================
+
+function usarFotoCamara(input) {
+
+    const archivo = input.files[0];
+
+    if (!archivo) return;
+
+    // Utilizar el mismo campo que ya procesa crearReporte()
+    const campoImagen = document.getElementById("reporte-imagen");
+
+    const transferencia = new DataTransfer();
+
+    transferencia.items.add(archivo);
+
+    campoImagen.files = transferencia.files;
+
+    // Ejecutar la validación y actualizar el nombre
+    campoImagen.dispatchEvent(
+        new Event("change", { bubbles: true })
+    );
+
+    input.value = "";
+}
 
 function actualizarNombreArchivoReporte(input) {
   const span = document.getElementById("nombre-archivo-reporte");
@@ -367,13 +797,11 @@ function crearReporte() {
   // aleatoria para que los marcadores no queden apilados exactamente en el
   // mismo punto en el mapa.
   if (!ubicacionSeleccionada) {
-    const jitter = () => (Math.random() - 0.5) * 0.02; // ~ ±1km aprox.
-    ubicacionSeleccionada = {
-      lat: COORD_DAVID_DEFAULT.lat + jitter(),
-      lng: COORD_DAVID_DEFAULT.lng + jitter(),
-      precisa: false
-    };
-  }
+    alert(
+        "Debes seleccionar la ubicación del problema usando el GPS o el mapa."
+    );
+    return;
+}
 
   if (archivoImagen) {
     const lector = new FileReader();
@@ -488,14 +916,16 @@ function aplicarFiltroReportes() {
   const contenedor = document.getElementById("lista-reportes-ciudadano");
   if (!contenedor) return;
 
-  let filtrados = todosLosReportes;
+  // Mostrar los reportes de todos los ciudadanos
+let filtrados = todosLosReportes;
 
-  if (filtroReporteActual !== "todos") {
-    filtrados = todosLosReportes.filter((r) =>
-      claseEstado(r.estado) === filtroReporteActual ||
-      (r.estado || "").toLowerCase().includes(filtroReporteActual)
-    );
-  }
+// Filtrar únicamente por el estado del reporte
+if (filtroReporteActual !== "todos") {
+  filtrados = filtrados.filter((r) =>
+    claseEstado(r.estado) === filtroReporteActual ||
+    (r.estado || "").toLowerCase().includes(filtroReporteActual)
+  );
+}
 
   if (filtrados.length === 0) {
     contenedor.innerHTML = `
@@ -799,58 +1229,250 @@ async function actualizarReporteFuncionario(idReporte) {
   }
 }
 
-// -----------------------------
-// NOTIFICACIONES (CIUDADANO)
-// -----------------------------
+// ==========================================
+// NOTIFICACIONES MODERNAS - CIUDADANO
+// ==========================================
+
 async function renderizarNotificaciones() {
-  const pantalla = document.getElementById("scr-notificaciones");
-  if (!pantalla) return;
 
-  let contenedor = pantalla.querySelector(".notificaciones-dinamicas");
-  if (!contenedor) {
-    contenedor = document.createElement("div");
-    contenedor.className = "notificaciones-dinamicas";
-    pantalla.appendChild(contenedor);
-  }
+    const pantalla = document.getElementById("scr-notificaciones");
+    if (!pantalla) return;
 
-  if (!usuarioActual) {
-    contenedor.innerHTML = `
-      <div class="empty-state">
-        <img src="vacio.png" alt="Sin notificaciones">
-        <p>Inicia sesión para ver tus notificaciones.</p>
-      </div>
-    `;
-    return;
-  }
+    let contenedor = pantalla.querySelector(".notificaciones-dinamicas");
 
-  try {
-    const res = await fetch(`${API_URL}/notificaciones/${usuarioActual.id}`);
-    const notificaciones = await res.json();
-
-    if (notificaciones.length === 0) {
-      contenedor.innerHTML = `
-        <div class="empty-state">
-          <img src="vacio.png" alt="Sin notificaciones">
-          <p>No tienes notificaciones nuevas.</p>
-        </div>
-      `;
-      return;
+    if (!contenedor) {
+        contenedor = document.createElement("div");
+        contenedor.className = "notificaciones-dinamicas";
+        pantalla.appendChild(contenedor);
     }
 
-    contenedor.innerHTML = "";
+    if (!usuarioActual) {
+        contenedor.innerHTML = `
+            <div class="fu-n-layout">
+                <div class="fu-n-empty">
+                    <div class="fu-n-empty-icon">🔔</div>
+                    <h3>Inicia sesión</h3>
+                    <p>Accede a tu cuenta para consultar tus notificaciones.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
-    notificaciones.forEach((n) => {
-      contenedor.innerHTML += `
-        <div class="notification-card">
-          ${n.leida ? "" : "🟢 "}<strong>${n.mensaje}</strong>
-          <br><small>${n.fecha}</small>
+    contenedor.innerHTML = `
+        <div class="fu-n-layout">
+            <p class="fu-n-loading">Cargando tus notificaciones...</p>
         </div>
-      `;
-    });
-  } catch (error) {
-    console.error(error);
-    contenedor.innerHTML = "<p style='padding:14px;color:#d9534f;'>No se pudo conectar con el servidor.</p>";
-  }
+    `;
+
+    try {
+
+        const respuesta = await fetch(
+            `${API_URL}/notificaciones/${usuarioActual.id}`
+        );
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar las notificaciones.");
+        }
+
+        const notificaciones = await respuesta.json();
+
+        const pendientes = notificaciones.filter(n => !n.leida).length;
+
+        const layout = document.createElement("div");
+        layout.className = "fu-n-layout";
+
+        // TARJETA PRINCIPAL
+        layout.innerHTML = `
+            <div class="fu-n-hero">
+
+                <div class="fu-n-hero-top">
+                    <span class="fu-n-hero-icon">🔔</span>
+                    <span class="fu-n-counter">${pendientes} sin leer</span>
+                </div>
+
+                <h2>Tu actividad</h2>
+
+                <p>
+                    ${pendientes > 0
+                        ? `Tienes ${pendientes} ${pendientes === 1 ? "novedad pendiente" : "novedades pendientes"} por revisar.`
+                        : "¡Estás al día con tus notificaciones!"}
+                </p>
+
+            </div>
+
+            <div class="fu-n-section-title">
+                <h3>Actualizaciones recientes</h3>
+                <span>${notificaciones.length}</span>
+            </div>
+
+            <div class="fu-n-list"></div>
+        `;
+
+        const lista = layout.querySelector(".fu-n-list");
+
+        // SI NO EXISTEN NOTIFICACIONES
+        if (notificaciones.length === 0) {
+
+            lista.innerHTML = `
+                <div class="fu-n-empty">
+                    <div class="fu-n-empty-icon">✉️</div>
+                    <h3>Todo tranquilo por aquí</h3>
+                    <p>
+                        Cuando tus reportes tengan novedades,
+                        aparecerán en este espacio.
+                    </p>
+                </div>
+            `;
+
+        } else {
+
+            notificaciones.forEach(n => {
+
+                const mensaje = String(n.mensaje || "");
+                const texto = mensaje.toLowerCase();
+
+                let titulo = "Actualización de reporte";
+                let icono = "↗";
+                let tipo = "general";
+
+                if (texto.includes("resuelto")) {
+                    titulo = "Reporte resuelto";
+                    icono = "✓";
+                    tipo = "resuelto";
+                }
+                else if (texto.includes("rechazado")) {
+                    titulo = "Reporte rechazado";
+                    icono = "!";
+                    tipo = "rechazado";
+                }
+                else if (texto.includes("proceso")) {
+                    titulo = "Reporte en proceso";
+                    icono = "↻";
+                    tipo = "proceso";
+                }
+
+                const tarjeta = document.createElement("article");
+
+                tarjeta.className =
+                    `fu-n-card ${n.leida ? "fu-n-card-read" : ""}`;
+
+                tarjeta.innerHTML = `
+                    <div class="fu-n-icon fu-n-${tipo}">
+                        ${icono}
+                    </div>
+
+                    <div class="fu-n-card-content">
+
+                        <div class="fu-n-card-top">
+                            <strong>${titulo}</strong>
+
+                            ${n.leida
+                                ? ""
+                                : '<span class="fu-n-new">Nuevo</span>'}
+                        </div>
+
+                        <p class="fu-n-message"></p>
+
+                        <div class="fu-n-meta">
+                            <span class="fu-n-date"></span>
+                        </div>
+
+                    </div>
+                `;
+
+                tarjeta.querySelector(".fu-n-message").textContent = mensaje;
+                tarjeta.querySelector(".fu-n-date").textContent = n.fecha || "";
+
+                if (!n.leida) {
+
+                    const boton = document.createElement("button");
+
+                    boton.type = "button";
+                    boton.className = "fu-n-read-btn";
+                    boton.textContent = "✓ Marcar como leída";
+
+                    boton.addEventListener("click", () => {
+                        marcarNotificacionLeidaCiudadano(n.id, boton);
+                    });
+
+                    tarjeta.querySelector(".fu-n-meta").appendChild(boton);
+                }
+
+                lista.appendChild(tarjeta);
+
+            });
+        }
+
+        // TARJETA INFORMATIVA INFERIOR
+        const informacion = document.createElement("div");
+
+        informacion.className = "fu-n-info";
+
+        informacion.innerHTML = `
+            <span class="fu-n-info-icon">✦</span>
+
+            <div>
+                <strong>Mantente informado</strong>
+                <p>
+                    Aquí podrás consultar las actualizaciones
+                    sobre el estado de tus reportes.
+                </p>
+            </div>
+        `;
+
+        layout.appendChild(informacion);
+
+        contenedor.replaceChildren(layout);
+
+    } catch (error) {
+
+        console.error("Error cargando notificaciones:", error);
+
+        contenedor.innerHTML = `
+            <div class="fu-n-layout">
+                <div class="fu-n-empty">
+                    <h3>No pudimos cargar tus avisos</h3>
+                    <p>Comprueba tu conexión e inténtalo nuevamente.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+
+// ==========================================
+// MARCAR NOTIFICACIONES COMO LEÍDAS
+// ==========================================
+
+async function marcarNotificacionLeidaCiudadano(idNotificacion, boton) {
+
+    boton.disabled = true;
+    boton.textContent = "Guardando...";
+
+    try {
+        const respuesta = await fetch(
+            `${API_URL}/notificaciones/${idNotificacion}/leida`,
+            {
+                method: "PUT"
+            }
+        );
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudo marcar la notificación como leída.");
+        }
+
+        // Actualizar las notificaciones y el contador
+        await renderizarNotificaciones();
+
+    } catch (error) {
+        console.error("Error actualizando notificación:", error);
+
+        boton.disabled = false;
+        boton.textContent = "✓ Marcar como leída";
+
+        alert("No se pudo actualizar la notificación.");
+    }
 }
 
 // -----------------------------

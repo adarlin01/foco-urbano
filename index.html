@@ -9,6 +9,7 @@
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="acceso_social_demo.css">
 </head>
 <body>
 
@@ -69,10 +70,10 @@
         </div>
 
         <div class="social-buttons">
-          <button type="button" class="social-btn" onclick="mostrarProximamente()">
+          <button type="button" class="social-btn" onclick="abrirDemoSocial('google')">
             <img src="google.png" alt="Google">
           </button>
-          <button type="button" class="social-btn" onclick="mostrarProximamente()">
+          <button type="button" class="social-btn" onclick="abrirDemoSocial('apple')">
             <img src="apple.png" alt="Apple">
           </button>
         </div>
@@ -243,23 +244,53 @@
         <span>›</span>
       </div>
 
-      <div class="guide-card">
-  <h3>¿Cómo usar Foco Urbano?</h3>
+      <details class="guide-card guide-accordion">
+    <summary>¿Cómo usar Foco Urbano?</summary>
 
-  <div class="guide-step">
-    <span>1</span>
-    <p>Presiona <strong>Crear reporte</strong> para informar un problema de tu comunidad.</p>
-  </div>
+    <div class="guide-content">
 
-  <div class="guide-step">
-    <span>2</span>
-    <p>Selecciona la categoría, el corregimiento, escribe un título y describe el problema.</p>
-  </div>
+        <div class="guide-step">
+            <span>1</span>
+            <p>
+                Presiona <strong>Crear reporte</strong> para informar
+                un problema de tu comunidad.
+            </p>
+        </div>
 
-  <div class="guide-step">
-    <span>3</span>
-    <p>Presiona "Usar mi ubicación" para que el mapa marque el punto exacto. La foto es opcional.</p>
-  </div>
+        <div class="guide-step">
+            <span>2</span>
+            <p>
+                Selecciona la categoría, el corregimiento,
+                escribe un título y describe el problema.
+            </p>
+        </div>
+
+        <div class="guide-step">
+            <span>3</span>
+            <p>
+                Presiona "Usar mi ubicación" para que el mapa
+                marque el punto exacto. La foto es opcional.
+            </p>
+        </div>
+
+    </div>
+</details>
+
+<div class="community-card">
+
+    <div class="community-info">
+        <span class="community-label">TU COMUNIDAD, EN ACCIÓN</span>
+
+        <h3>Cada reporte cuenta.</h3>
+
+        <p>Tu voz puede transformar nuestra ciudad.</p>
+    </div>
+
+    <img
+        src="reporte-animado.gif"
+        alt="Ciudadano fotografiando un problema urbano"
+        class="community-animation"
+    >
 
 </div>
 </section>
@@ -297,12 +328,54 @@
            Usar mi ubicación
         </button>
 
-        <p id="estado-ubicacion" class="hint">Ubicación no detectada todavía.</p>
+        <p id="estado-ubicacion" class="hint">
+    Ubicación no detectada todavía.
+</p>
 
-        <label>Evidencia fotográfica (opcional)</label>
-        <input id="reporte-imagen" type="file" accept="image/*" style="display:none;" onchange="actualizarNombreArchivoReporte(this)" />
-        <label for="reporte-imagen" class="file-upload-btn" id="nombre-archivo-reporte">Seleccionar foto</span>
-        </label>
+<button
+    type="button"
+    class="btn-secondary btn-ubicacion"
+    onclick="abrirSelectorMapa()">
+     Seleccionar ubicación en el mapa
+</button>
+
+<label>Evidencia fotográfica (opcional)</label>
+
+<!-- Seleccionar foto de la galería -->
+<input
+    id="reporte-imagen"
+    type="file"
+    accept="image/*"
+    style="display:none;"
+    onchange="validarFotoReporte(this)"
+/>
+
+<label
+    for="reporte-imagen"
+    class="file-upload-btn"
+    id="nombre-archivo-reporte">
+     Seleccionar foto
+</label>
+
+<!-- Tomar foto con la cámara -->
+<input
+    id="reporte-camara"
+    type="file"
+    accept="image/*"
+    capture="environment"
+    style="display:none;"
+    onchange="usarFotoCamara(this)"
+/>
+
+<label
+    for="reporte-camara"
+    class="file-upload-btn">
+     Tomar foto
+</label>
+
+<p class="hint">
+    Formatos: JPG, PNG o WebP. Máximo 5 MB.
+</p>
 
         <button class="btn-primary" onclick="crearReporte()">
           Enviar reporte
@@ -754,5 +827,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>
+  <script src="acceso_social_demo.js"></script>
 </body>
 </html>

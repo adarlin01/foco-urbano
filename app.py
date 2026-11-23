@@ -7,6 +7,7 @@ import os
 import uuid
 import random
 import time
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -126,8 +127,17 @@ def registro():
     if not nombre or not correo or not contrasena:
         return jsonify({"error": "Faltan campos obligatorios (nombre, correo, contraseña)."}), 400
 
-    if len(contrasena) < 4:
-        return jsonify({"error": "La contraseña debe tener al menos 4 caracteres."}), 400
+    # Validar el formato del correo electrónico
+    patron_correo = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+
+    if not re.fullmatch(patron_correo, correo):
+        return jsonify({
+        "error": "Ingresa un correo electrónico válido."
+    }), 400
+
+    if len(contrasena) < 8:
+       return jsonify({"error": "La contraseña debe tener al menos 8 caracteres."
+    }), 400 
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -270,8 +280,10 @@ def actualizar_password():
     if not correo or not nueva_contrasena:
         return jsonify({"error": "Faltan datos para actualizar la contraseña."}), 400
 
-    if len(nueva_contrasena) < 4:
-        return jsonify({"error": "La contraseña debe tener al menos 4 caracteres."}), 400
+    if len(nueva_contrasena) < 8:
+         return jsonify({
+        "error": "La contraseña debe tener al menos 8 caracteres."
+    }), 400
 
     registro_codigo = codigos_recuperacion.get(correo)
     if not registro_codigo or not registro_codigo.get("verificado"):
@@ -300,8 +312,10 @@ def cambiar_password():
     if not idUsuario or not contrasenaActual or not nuevaContrasena:
         return jsonify({"error": "Faltan datos para cambiar la contraseña."}), 400
 
-    if len(nuevaContrasena) < 4:
-        return jsonify({"error": "La nueva contraseña debe tener al menos 4 caracteres."}), 400
+    if len(nuevaContrasena) < 8:
+            return jsonify({
+        "error": "La nueva contraseña debe tener al menos 8 caracteres."
+    }), 400
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -449,6 +463,68 @@ def crear_reporte():
     if not all([idUsuario, idCategoria, idCorregimiento, titulo, descripcion]) or latitud is None or longitud is None:
         return jsonify({"error": "Faltan campos obligatorios."}), 400
 
+    # ------------------------------------------
+    # VALIDACIÓN DE EVIDENCIA FOTOGRÁFICA
+    # ------------------------------------------
+
+    imagen_bytes = None
+    extension_imagen = None
+    tamano_maximo = 5 * 1024 * 1024  # 5 MB
+
+    if imagenBase64:
+
+        if not isinstance(imagenBase64, str):
+            return jsonify({
+                "error": "La fotografía enviada no es válida."
+            }), 400
+
+        try:
+            # Separar el encabezado Base64, si existe
+            if imagenBase64.startswith("data:"):
+                contenido = imagenBase64.split(",", 1)[1]
+            else:
+                contenido = imagenBase64
+
+            # Evitar procesar imágenes excesivamente grandes
+            if len(contenido) > ((tamano_maximo + 2) // 3) * 4:
+                return jsonify({
+                    "error": "La fotografía supera el límite de 5 MB."
+                }), 413
+
+            imagen_bytes = base64.b64decode(
+                contenido,
+                validate=True
+            )
+
+        except Exception:
+            return jsonify({
+                "error": "No se pudo procesar la fotografía."
+            }), 400
+
+        # Comprobar tamaño real
+        if len(imagen_bytes) > tamano_maximo:
+            return jsonify({
+                "error": "La fotografía supera el límite de 5 MB."
+            }), 413
+
+        # Identificar formato mediante la firma del archivo
+        if imagen_bytes.startswith(b"\xff\xd8\xff"):
+            extension_imagen = "jpg"
+
+        elif imagen_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+            extension_imagen = "png"
+
+        elif (
+            imagen_bytes.startswith(b"RIFF")
+            and imagen_bytes[8:12] == b"WEBP"
+        ):
+            extension_imagen = "webp"
+
+        else:
+            return jsonify({
+                "error": "Formato no permitido. Utiliza JPG, PNG o WebP."
+            }), 400
+
     conn = get_conn()
     cursor = conn.cursor()
 
@@ -466,26 +542,39 @@ def crear_reporte():
         VALUES (?, 1, ?, 'Reporte creado por el ciudadano.')
     """, id_reporte, idUsuario)
 
-    if imagenBase64:
+        # ------------------------------------------
+    # GUARDAR EVIDENCIA FOTOGRÁFICA
+    # ------------------------------------------
+
+    if imagen_bytes is not None:
+
+        filename = f"{uuid.uuid4().hex}.{extension_imagen}"
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+
         try:
-            if "," in imagenBase64:
-                header, encoded = imagenBase64.split(",", 1)
-            else:
-                header, encoded = "", imagenBase64
-
-            ext = "jpg" if "jpeg" in header or "jpg" in header else "png"
-            filename = f"{uuid.uuid4().hex}.{ext}"
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-
             with open(filepath, "wb") as f:
-                f.write(base64.b64decode(encoded))
+                f.write(imagen_bytes)
 
             url_imagen = f"/static/evidencias/{filename}"
+
             cursor.execute("""
-                INSERT INTO EvidenciasReporte (idReporte, urlImagen) VALUES (?, ?)
+                INSERT INTO EvidenciasReporte (idReporte, urlImagen)
+                VALUES (?, ?)
             """, id_reporte, url_imagen)
+
         except Exception as ex:
-            print("⚠️ Error guardando la imagen del reporte:", ex)
+            print("Error guardando imagen:", ex)
+
+            conn.rollback()
+
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+            conn.close()
+
+            return jsonify({
+                "error": "No se pudo guardar la fotografía. Intenta nuevamente."
+            }), 500
 
     # Notificar a todos los funcionarios municipales de que llegó un reporte nuevo
     try:
@@ -608,7 +697,7 @@ def servir_evidencia(filename):
 
 @app.route("/<path:filename>")
 def archivos_frontend(filename):
-    extensiones = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp")
+    extensiones = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp", ".gif")
 
     if not filename.lower().endswith(extensiones):
         return "Archivo no encontrado", 404
